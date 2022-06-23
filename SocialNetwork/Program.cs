@@ -20,6 +20,7 @@ namespace SocialNetwork
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseUrls("http://0.0.0.0:5981");
                     webBuilder.UseStartup<Startup>();
                 });
     }

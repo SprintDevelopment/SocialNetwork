@@ -25,6 +25,21 @@ namespace SocialNetwork.Controllers
         [HttpGet]
         public IEnumerable<User> Get()
         {
+            for (int i = 0; i < 100; i++)
+            {
+                _unitOfWork.Users.Add(new User()
+                {
+                    Username = $"Username {i}",
+                    Id = Guid.NewGuid().ToString(),
+                    CreatedAt = DateTime.Now,
+                    BlockedUntil = DateTime.Now,
+                    AdminReputation = 0,
+                    ReportCandidate = false,
+                    WhiteList = true,
+                    Reported = false,
+                    Verified = true
+                }, true);
+            }
             return _unitOfWork.Users.GetAll().AsEnumerable();
         }
     }
