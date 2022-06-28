@@ -4,10 +4,8 @@ using SocialNetwork.Assets.Values.Constants;
 using SocialNetwork.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SocialNetwork.Data.Repositories
@@ -19,13 +17,10 @@ namespace SocialNetwork.Data.Repositories
         void Update(T oldEntity, T newEntity, bool autoComplete = false);
 
         Task<T> GetAsync(dynamic id);
-        Task<T> GetWithIncludeAsync(Expression<Func<T, bool>> predicate);
 
         IQueryable<T> GetAll(int pageNumber = 0);
-        IQueryable<T> GetAllWithInclude(int pageNumber = 0);
 
         IQueryable<T> Find(Expression<Func<T, bool>> predicate, int pageNumber = 0);
-        IQueryable<T> FindWithInclude(Expression<Func<T, bool>> predicate, int pageNumber = 0);
 
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
@@ -93,55 +88,14 @@ namespace SocialNetwork.Data.Repositories
                 return Context.Set<T>().Where(predicate).Skip((pageNumber - 1) * SizeConstants.PAGE_SIZE).Take(SizeConstants.PAGE_SIZE);
         }
 
-        public IQueryable<T> FindWithInclude(Expression<Func<T, bool>> predicate, int pageNumber = 0)
-        {
-            var query = Context.Set<T>().Where(predicate);
-            var fakeInstance = new T();
-            foreach (var foreignProperty in fakeInstance.GetNavigationProperties())
-                query = query.Include(foreignProperty.Name);
-
-            if (pageNumber == 0)
-                return query;
-            else
-                return query.Skip((pageNumber - 1) * SizeConstants.PAGE_SIZE).Take(SizeConstants.PAGE_SIZE);
-        }
-
         public async Task<T> GetAsync(dynamic id)
         {
             return await Context.Set<T>().FindAsync(id);
         }
 
-        public async Task<T> GetWithIncludeAsync(Expression<Func<T, bool>> predicate)
-        {
-            return (await FindWithInclude(predicate).ToListAsync()).FirstOrDefault();
-        }
-
-        //public async Task<PresentationList<T>> GetPageAsync(Expression<Func<T, bool>> predicate, int pageNumber)
-        //{
-        //    return new PresentationList<T>()
-        //    {
-        //        TotalItemsCount = await Context.Set<T>().CountAsync(predicate),
-        //        List = await FindAsync(predicate, pageNumber)
-        //    };
-        //}
-
-        //public async Task<PresentationList<T>> GetPageWithIncludeAsync(Expression<Func<T, bool>> predicate, int pageNumber)
-        //{
-        //    return new PresentationList<T>()
-        //    {
-        //        TotalItemsCount = await Context.Set<T>().CountAsync(predicate),
-        //        List = await FindWithIncludeAsync(predicate, pageNumber)
-        //    };
-        //}
-
         public IQueryable<T> GetAll(int pageNumber = 0)
         {
             return Find(entity => true, pageNumber);
-        }
-
-        public IQueryable<T> GetAllWithInclude(int pageNumber = 0)
-        {
-            return FindWithInclude(entity => true, pageNumber);
         }
 
         public void Remove(T entity)

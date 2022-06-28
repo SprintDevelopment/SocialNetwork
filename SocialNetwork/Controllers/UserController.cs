@@ -25,7 +25,7 @@ namespace SocialNetwork.Controllers
         [HttpGet]
         public IEnumerable<User> Get()
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 5; i++)
             {
                 _unitOfWork.Users.Add(new User()
                 {
