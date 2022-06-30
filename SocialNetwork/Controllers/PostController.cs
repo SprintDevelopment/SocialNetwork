@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
+using SocialNetwork.Assets.Extensions;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace SocialNetwork.Controllers
 {
@@ -22,23 +26,20 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Post> Get()
+        public IEnumerable<Post> Get(string user, string tag, DateTime? date, int offset, int limit)
         {
-            //_unitOfWork.Posts.Add(new Post
-            //{
-            //    CreatedAt = DateTime.Now,
-            //    Text = "New post",
-            //    UserID = "4f4abcde-757f-433c-92a2-03a6da043a0c",
-            //    Image = "",
-            //    EditedAt = null,
-            //    Description = "",
-            //    Score = 1,
-            //    ScoreTime = 2,
-            //    Symbol = "ETHUSDT",
-            //    AutoReportTime = null,
-            //}, true);
+            IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags);
 
-            return _unitOfWork.Posts.GetAll().Include(p => p.PostTags).AsEnumerable();
+            if (!user.IsNullOrWhitespace())
+                query = query.Where(p => p.UserID == user);
+
+            if (date != null)
+                query = query.Where(p => p.CreatedAt == date);
+
+            if (!tag.IsNullOrWhitespace())
+                query = query.Where(p => p.PostTags.Any(pt => pt.TagID == tag));
+
+            return query.AsEnumerable();
         }
 
         [HttpPost]
@@ -55,5 +56,8 @@ namespace SocialNetwork.Controllers
             }
             return null;
         }
+
+        // posts/ -> {user, tag, limit, offset, order, date} - query
+        // posts/{post_id} -> { post_id }
     }
 }

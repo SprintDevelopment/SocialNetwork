@@ -39,22 +39,22 @@ namespace SocialNetwork.Controllers
             //    AutoReportTime = null,
             //}, true);
 
-            return _unitOfWork.Comments.GetAll().AsEnumerable();
+            return _unitOfWork.Comments.Find().AsEnumerable();
         }
 
-        [HttpPost]
-        public async Task<Comment> Create(Comment comment)
-        {
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.Comments.Add(comment);
-                await _unitOfWork.Posts.Find(p => p.ID == comment.PostID).ForEachAsync(p => p.Comments++);
+        //[HttpPost]
+        //public async Task<Comment> Create(Comment comment)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _unitOfWork.Comments.Add(comment);
+        //        await _unitOfWork.Posts.Find(p => p.ID == comment.PostID).ForEachAsync(p => p.Comments++);
                 
-                await _unitOfWork.CompleteAsync();
+        //        await _unitOfWork.CompleteAsync();
 
-                return comment;
-            }
-            return null;
-        }
+        //        return comment;
+        //    }
+        //    return null;
+        //}
     }
 }
