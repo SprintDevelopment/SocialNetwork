@@ -40,7 +40,7 @@ namespace SocialNetwork.Controllers
                     Verified = true
                 }, true);
             }
-            return _unitOfWork.Users.GetAll().AsEnumerable();
+            return _unitOfWork.Users.Find().AsEnumerable();
         }
     }
 }

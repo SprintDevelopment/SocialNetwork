@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialNetwork.Assets.Extensions;
-using SocialNetwork.Assets.Values.Constants;
 using SocialNetwork.Models;
 using System;
 using System.Collections.Generic;
@@ -18,9 +17,7 @@ namespace SocialNetwork.Data.Repositories
 
         Task<T> GetAsync(dynamic id);
 
-        IQueryable<T> GetAll(int pageNumber = 0);
-
-        IQueryable<T> Find(Expression<Func<T, bool>> predicate, int pageNumber = 0);
+        IQueryable<T> Find(Expression<Func<T, bool>> predicate = null);
 
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
@@ -80,12 +77,9 @@ namespace SocialNetwork.Data.Repositories
             }
         }
 
-        public IQueryable<T> Find(Expression<Func<T, bool>> predicate, int pageNumber = 0)
+        public IQueryable<T> Find(Expression<Func<T, bool>> predicate = null)
         {
-            if (pageNumber == 0)
-                return Context.Set<T>().Where(predicate);
-            else
-                return Context.Set<T>().Where(predicate).Skip((pageNumber - 1) * SizeConstants.PAGE_SIZE).Take(SizeConstants.PAGE_SIZE);
+            return Context.Set<T>().Where(predicate ?? (x => true));
         }
 
         public async Task<T> GetAsync(dynamic id)
@@ -93,15 +87,9 @@ namespace SocialNetwork.Data.Repositories
             return await Context.Set<T>().FindAsync(id);
         }
 
-        public IQueryable<T> GetAll(int pageNumber = 0)
-        {
-            return Find(entity => true, pageNumber);
-        }
-
         public void Remove(T entity)
         {
             Context.Entry(entity).State = EntityState.Detached;
-            //var entityClone = entity.LightClone();
             Context.Set<T>().Remove(entity);
         }
 

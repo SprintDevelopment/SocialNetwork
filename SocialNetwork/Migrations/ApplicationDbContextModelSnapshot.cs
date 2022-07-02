@@ -73,6 +73,8 @@ namespace SocialNetwork.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("PostID");
+
                     b.ToTable("Comments");
                 });
 
@@ -225,6 +227,17 @@ namespace SocialNetwork.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("SocialNetwork.Models.Comment", b =>
+                {
+                    b.HasOne("SocialNetwork.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("SocialNetwork.Models.Post", b =>

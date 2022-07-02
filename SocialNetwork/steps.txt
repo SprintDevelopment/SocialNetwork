@@ -1,0 +1,24 @@
+chrome and its extensions
+visual studio 2019
+netcore 5
+visual studio code
+git bash
+winrar
+source code pro
+mobaX
+postman
+postgresql
+pgadmin
+
+
+postgre password: postgresql
+postgre port: 5432
+
+git password: uW40^#Tig
+
+server ip: 217.182.52.1
+server pass: uW3mF2bngU6740^#
+
+main server ip: 212.33.201.176
+main server pass: TGcryp2P@ss4User
+

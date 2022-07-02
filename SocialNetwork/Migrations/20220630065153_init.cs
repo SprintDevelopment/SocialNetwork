@@ -9,32 +9,6 @@ namespace SocialNetwork.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Comments",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    Text = table.Column<string>(type: "text", nullable: false),
-                    Reported = table.Column<bool>(type: "boolean", nullable: false),
-                    PostID = table.Column<int>(type: "integer", nullable: false),
-                    ReplyTo = table.Column<int>(type: "integer", nullable: true),
-                    UserID = table.Column<string>(type: "text", nullable: false),
-                    EditedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    AutoReport = table.Column<bool>(type: "boolean", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    AdminWhitelist = table.Column<bool>(type: "boolean", nullable: false),
-                    NotificationSent = table.Column<bool>(type: "boolean", nullable: false),
-                    Likes = table.Column<int>(type: "integer", nullable: false),
-                    Dislikes = table.Column<int>(type: "integer", nullable: false),
-                    Replies = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Comments", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "CommentVotes",
                 columns: table => new
                 {
@@ -105,6 +79,38 @@ namespace SocialNetwork.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Comments",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false),
+                    Reported = table.Column<bool>(type: "boolean", nullable: false),
+                    PostID = table.Column<int>(type: "integer", nullable: false),
+                    ReplyTo = table.Column<int>(type: "integer", nullable: true),
+                    UserID = table.Column<string>(type: "text", nullable: false),
+                    EditedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    AutoReport = table.Column<bool>(type: "boolean", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    AdminWhitelist = table.Column<bool>(type: "boolean", nullable: false),
+                    NotificationSent = table.Column<bool>(type: "boolean", nullable: false),
+                    Likes = table.Column<int>(type: "integer", nullable: false),
+                    Dislikes = table.Column<int>(type: "integer", nullable: false),
+                    Replies = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comments", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Comments_Posts_PostID",
+                        column: x => x.PostID,
+                        principalTable: "Posts",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PostTags",
                 columns: table => new
                 {
@@ -123,6 +129,11 @@ namespace SocialNetwork.Migrations
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_PostID",
+                table: "Comments",
+                column: "PostID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Posts_UserID",
