@@ -48,7 +48,7 @@ namespace SocialNetwork.Controllers
             if (ModelState.IsValid)
             {
                 _unitOfWork.Comments.Add(comment);
-                await _unitOfWork.Posts.Find(p => p.ID == comment.PostID).ForEachAsync(p => p.Comments++);
+                await _unitOfWork.Posts.Find(p => p.Id == comment.PostID).ForEachAsync(p => p.Comments++);
                 
                 await _unitOfWork.CompleteAsync();
 

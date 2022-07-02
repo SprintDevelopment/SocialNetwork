@@ -24,7 +24,7 @@ namespace SocialNetwork
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
             
             services.AddTransient<IUnitOfWork, UnitOfWork>();
-
+            services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

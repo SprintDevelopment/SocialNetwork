@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SocialNetwork.Models
 {
     public class Post : BaseModel
     {
         [Key]
-        public int ID { get; set; }
+        public int Id { get; set; }
         
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreateTime { get; set; }
 
         [Required]
         public string Text { get; set; }
@@ -20,15 +21,15 @@ namespace SocialNetwork.Models
         public bool Reported { get; set; }
 
         [Required]
-        public string UserID { get; set; }
+        public string UserId { get; set; }
 
-        [ForeignKey(nameof(UserID))]
+        [ForeignKey(nameof(UserId))]
         public User Author { get; set; }
 
         [Required(AllowEmptyStrings = true)]
         public string Image { get; set; }
 
-        public DateTime? EditedAt { get; set; }
+        public DateTime? EditTime { get; set; }
         
         [Required]
         public bool AutoReport { get; set; }
@@ -63,5 +64,57 @@ namespace SocialNetwork.Models
         
         [Required]
         public bool NotificationSent { get; set; }
+    }
+
+    public class SearchPostDto
+    {
+        public int Id { get; set; }
+
+        public string Text { get; set; }
+
+        [JsonPropertyName("user")]
+        public string UserId { get; set; }
+
+        public string Image { get; set; }
+
+        public bool Reported { get; set; }
+
+        public int Comments { get; set; }
+
+        public int Likes { get; set; }
+
+        public int Dislikes { get; set; }
+
+        [JsonPropertyName("time")]
+        public DateTime CreateTime { get; set; }
+
+        [JsonPropertyName("edited_at")]
+        public DateTime? EditeTime { get; set; }
+
+        public virtual IEnumerable<string> Tags { get; set; }
+
+        public string Symbol { get; set; }
+
+        public string Username { get; set; }
+
+        [JsonPropertyName("user_verified")]
+        public string UserVerified { get; set; }
+
+        [JsonPropertyName("my_vote")]
+        public string MyVote { get; set; }
+
+        public SearchPostDto(Post post)
+        {
+            Id = post.Id;
+            Text = post.Text;
+            UserId = post.UserId;
+            Image = post.Image;
+            Reported = post.Reported;
+            Comments = post.Comments;
+            Likes = post.Likes;
+            Dislikes = post.Dislikes;
+            CreateTime = post.CreateTime;
+
+        }
     }
 }

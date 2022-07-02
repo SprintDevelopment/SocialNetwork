@@ -22,7 +22,7 @@ namespace SocialNetwork.Data.Repositories
 
         public IEnumerable<Post> GetLatest(int pageNumber = 0)
         {
-            return Find(x => true).OrderBy(x => x.CreatedAt).Paginate(pageNumber);
+            return Find(x => true).OrderBy(x => x.CreateTime).Paginate(pageNumber);
         }
     }
 }

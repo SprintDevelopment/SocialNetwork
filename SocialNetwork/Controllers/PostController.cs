@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SocialNetwork.Data.Repositories;
@@ -12,17 +13,19 @@ namespace SocialNetwork.Controllers
     [Route("[controller]")]
     public class PostController : ControllerBase
     {
+        private readonly IMapper _mapper; 
         private readonly ILogger<PostController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public PostController(ILogger<PostController> logger, IUnitOfWork unitOfWork)
+        public PostController(IMapper mapper, ILogger<PostController> logger, IUnitOfWork unitOfWork)
         {
+            _mapper = mapper; 
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
         [HttpGet]
-        public IEnumerable<Post> Get()
+        public IEnumerable<SearchPostDto> Get()
         {
             //_unitOfWork.Posts.Add(new Post
             //{
@@ -38,7 +41,7 @@ namespace SocialNetwork.Controllers
             //    AutoReportTime = null,
             //}, true);
 
-            return _unitOfWork.Posts.GetAll().Include(p => p.PostTags).AsEnumerable();
+            return _unitOfWork.Posts.GetAll().Include(p => p.PostTags).Select(p => _mapper.Map<SearchPostDto>(p)).AsEnumerable();
         }
 
         [HttpPost]
@@ -48,7 +51,7 @@ namespace SocialNetwork.Controllers
             {
                 _unitOfWork.Posts.Add(post, true);
 
-                _unitOfWork.PostTags.AddRange(post.PostTags.Select(pt => new PostTag { PostID = post.ID, TagID = pt.TagID }));
+                _unitOfWork.PostTags.AddRange(post.PostTags.Select(pt => new PostTag { PostID = post.Id, TagID = pt.TagID }));
                 _unitOfWork.CompleteAsync().Wait();
 
                 return post;
