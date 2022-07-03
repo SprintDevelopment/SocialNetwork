@@ -61,6 +61,8 @@ namespace SocialNetwork.Models
         public int Dislikes { get; set; }
         
         public virtual IEnumerable<PostTag> PostTags { get; set; }
+
+        public virtual IEnumerable<PostVote> PostVotes { get; set; }
         
         [Required]
         public bool NotificationSent { get; set; }
@@ -91,7 +93,7 @@ namespace SocialNetwork.Models
         [JsonPropertyName("edited_at")]
         public DateTime? EditeTime { get; set; }
 
-        public virtual IEnumerable<string> Tags { get; set; }
+        public IEnumerable<string> Tags { get; set; }
 
         public string Symbol { get; set; }
 
@@ -101,20 +103,20 @@ namespace SocialNetwork.Models
         public string UserVerified { get; set; }
 
         [JsonPropertyName("my_vote")]
-        public string MyVote { get; set; }
+        public int MyVote { get; set; }
 
-        public SearchPostDto(Post post)
-        {
-            Id = post.Id;
-            Text = post.Text;
-            UserId = post.UserId;
-            Image = post.Image;
-            Reported = post.Reported;
-            Comments = post.Comments;
-            Likes = post.Likes;
-            Dislikes = post.Dislikes;
-            CreateTime = post.CreateTime;
+        //public SearchPostDto(Post post)
+        //{
+        //    Id = post.Id;
+        //    Text = post.Text;
+        //    UserId = post.UserId;
+        //    Image = post.Image;
+        //    Reported = post.Reported;
+        //    Comments = post.Comments;
+        //    Likes = post.Likes;
+        //    Dislikes = post.Dislikes;
+        //    CreateTime = post.CreateTime;
 
-        }
+        //}
     }
 }

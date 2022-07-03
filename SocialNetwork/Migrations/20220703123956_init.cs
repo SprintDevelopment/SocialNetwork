@@ -47,14 +47,14 @@ namespace SocialNetwork.Migrations
                 name: "Posts",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Text = table.Column<string>(type: "text", nullable: false),
                     Reported = table.Column<bool>(type: "boolean", nullable: false),
-                    UserID = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
                     Image = table.Column<string>(type: "text", nullable: false),
-                    EditedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    EditTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     AutoReport = table.Column<bool>(type: "boolean", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     AdminWhitelist = table.Column<bool>(type: "boolean", nullable: false),
@@ -69,10 +69,10 @@ namespace SocialNetwork.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Posts", x => x.ID);
+                    table.PrimaryKey("PK_Posts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Posts_Users_UserID",
-                        column: x => x.UserID,
+                        name: "FK_Posts_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -106,7 +106,7 @@ namespace SocialNetwork.Migrations
                         name: "FK_Comments_Posts_PostID",
                         column: x => x.PostID,
                         principalTable: "Posts",
-                        principalColumn: "ID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -126,7 +126,29 @@ namespace SocialNetwork.Migrations
                         name: "FK_PostTags_Posts_PostID",
                         column: x => x.PostID,
                         principalTable: "Posts",
-                        principalColumn: "ID",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PostVotes",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    IsDown = table.Column<bool>(type: "boolean", nullable: false),
+                    PostID = table.Column<int>(type: "integer", nullable: false),
+                    UserID = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostVotes", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_PostVotes_Posts_PostID",
+                        column: x => x.PostID,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -136,13 +158,18 @@ namespace SocialNetwork.Migrations
                 column: "PostID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Posts_UserID",
+                name: "IX_Posts_UserId",
                 table: "Posts",
-                column: "UserID");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PostTags_PostID",
                 table: "PostTags",
+                column: "PostID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostVotes_PostID",
+                table: "PostVotes",
                 column: "PostID");
         }
 
@@ -156,6 +183,9 @@ namespace SocialNetwork.Migrations
 
             migrationBuilder.DropTable(
                 name: "PostTags");
+
+            migrationBuilder.DropTable(
+                name: "PostVotes");
 
             migrationBuilder.DropTable(
                 name: "Posts");

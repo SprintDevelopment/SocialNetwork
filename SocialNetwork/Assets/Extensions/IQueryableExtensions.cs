@@ -8,9 +8,9 @@ namespace SocialNetwork.Assets.Extensions
 {
     public static class IQueryableExtensions
     {
-        public static IQueryable<T> Paginate<T>(this IQueryable<T> query, int pageNumber = 0)
+        public static IQueryable<T> Paginate<T>(this IQueryable<T> query, int offset = 0, int limit = 0)
         {
-            return query.Skip(pageNumber * SizeConstants.PAGE_SIZE).Take(SizeConstants.PAGE_SIZE);
+            return query.Skip(offset).Take(limit > 0 ? limit : int.MaxValue);
         }
     }
 }

@@ -23,19 +23,6 @@ namespace SocialNetwork.Assets.Extensions
                     .Select(g => g.Select(i => i.item));
         }
 
-        public static void SetOrder<T>(this IEnumerable<T> items, int startOrder = 0) where T : BaseModel
-        {
-            if (!items.IsNullOrEmpty())
-            {
-                int order = startOrder + 1;
-                _ = items.Select(item =>
-                  {
-                      item.RowOrder = order++;
-                      return item;
-                  });
-            }
-        }
-
         public static IEnumerable<SelectListItem> ToSelectListItem<T>(this IEnumerable<T> items, string idPropertyName, string titlePropertyName, int? selectedValue)
         {
             if (items == null)

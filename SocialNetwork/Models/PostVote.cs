@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SocialNetwork.Models
 {
@@ -17,6 +19,10 @@ namespace SocialNetwork.Models
         [Required]
         public int PostID { get; set; }
         
+        [JsonIgnore]
+        [ForeignKey(nameof(PostID))]
+        public Post Post { get; set; }
+
         [Required]
         public string UserID { get; set; }
     }

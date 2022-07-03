@@ -11,7 +11,9 @@ namespace SocialNetwork.Assets
     {
         public AutoMapping()
         {
-            CreateMap<Post, SearchPostDto>();
+            CreateMap<Post, SearchPostDto>()
+                .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
+                .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
         }
     }
 }

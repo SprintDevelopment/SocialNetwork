@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using SocialNetwork.Assets.Extensions;
 using SocialNetwork.Data.Repositories;
@@ -9,7 +8,6 @@ using SocialNetwork.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace SocialNetwork.Controllers
 {
@@ -17,32 +15,44 @@ namespace SocialNetwork.Controllers
     [Route("[controller]")]
     public class PostController : ControllerBase
     {
-        private readonly IMapper _mapper; 
+        private readonly IMapper _mapper;
         private readonly ILogger<PostController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
         public PostController(IMapper mapper, ILogger<PostController> logger, IUnitOfWork unitOfWork)
         {
-            _mapper = mapper; 
+            _mapper = mapper;
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
         [HttpGet]
-        public IEnumerable<SearchPostDto> Get()
+        public IEnumerable<SearchPostDto> Get(string user, string tag, DateTime? date, int offset, int limit)
         {
-            IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags);
+            //_unitOfWork.Posts.Add(new Post
+            //{
+            //    CreateTime = DateTime.Now,
+            //    Text = "New post",
+            //    UserId = "d74a1dc7-3b5b-4c96-8945-e976c5364564",
+            //    Image = "",
+            //    EditTime = null,
+            //    Description = "",
+            //    Score = 1,
+            //    ScoreTime = 2,
+            //    Symbol = "ETHUSDT",
+            //    AutoReportTime = null,
+            //}, true);
 
-            if (!user.IsNullOrWhitespace())
-                query = query.Where(p => p.UserID == user);
+            IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags).Include(p => p.PostVotes.Where(pp => pp.UserID == "645a1679-3a51-4ca8-8530-134f2b148ab3"));
 
-            if (date != null)
-                query = query.Where(p => p.CreatedAt == date);
+            query = user.IsNullOrWhitespace() ? query : query.Where(p => p.UserId == user); // user
+            query = date is null ? query : query.Where(p => p.CreateTime.Date == date.Value.Date); // date
+            query = tag.IsNullOrWhitespace() ? query : query.Where(p => p.PostTags.Any(pt => pt.TagID == tag)); // tag
 
-            if (!tag.IsNullOrWhitespace())
-                query = query.Where(p => p.PostTags.Any(pt => pt.TagID == tag));
-
-            return _unitOfWork.Posts.GetAll().Include(p => p.PostTags).Select(p => _mapper.Map<SearchPostDto>(p)).AsEnumerable();
+            return query.OrderBy(p => p.CreateTime)
+                        .Paginate(offset, limit)
+                        .Select(p => _mapper.Map<SearchPostDto>(p))
+                        .AsEnumerable();
         }
 
         [HttpPost]

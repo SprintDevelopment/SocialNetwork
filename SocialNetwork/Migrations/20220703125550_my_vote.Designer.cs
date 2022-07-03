@@ -10,8 +10,8 @@ using SocialNetwork.Data;
 namespace SocialNetwork.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220630065153_init")]
-    partial class init
+    [Migration("20220703125550_my_vote")]
+    partial class my_vote
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -107,7 +107,7 @@ namespace SocialNetwork.Migrations
 
             modelBuilder.Entity("SocialNetwork.Models.Post", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
@@ -124,7 +124,7 @@ namespace SocialNetwork.Migrations
                     b.Property<int>("Comments")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("CreateTime")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
@@ -134,7 +134,7 @@ namespace SocialNetwork.Migrations
                     b.Property<int>("Dislikes")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("EditedAt")
+                    b.Property<DateTime?>("EditTime")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Image")
@@ -164,13 +164,13 @@ namespace SocialNetwork.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserID")
+                    b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
-                    b.HasIndex("UserID");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Posts");
                 });
@@ -194,6 +194,33 @@ namespace SocialNetwork.Migrations
                     b.HasIndex("PostID");
 
                     b.ToTable("PostTags");
+                });
+
+            modelBuilder.Entity("SocialNetwork.Models.PostVote", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("IsDown")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("PostID")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("PostID");
+
+                    b.ToTable("PostVotes");
                 });
 
             modelBuilder.Entity("SocialNetwork.Models.User", b =>
@@ -246,7 +273,7 @@ namespace SocialNetwork.Migrations
                 {
                     b.HasOne("SocialNetwork.Models.User", "Author")
                         .WithMany()
-                        .HasForeignKey("UserID")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -264,9 +291,22 @@ namespace SocialNetwork.Migrations
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Models.PostVote", b =>
+                {
+                    b.HasOne("SocialNetwork.Models.Post", "Post")
+                        .WithMany("PostVotes")
+                        .HasForeignKey("PostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("SocialNetwork.Models.Post", b =>
                 {
                     b.Navigation("PostTags");
+
+                    b.Navigation("PostVotes");
                 });
 #pragma warning restore 612, 618
         }
