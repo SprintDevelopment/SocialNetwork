@@ -56,7 +56,9 @@ namespace SocialNetwork.Controllers
                     ReportCandidate = false,
                     WhiteList = true,
                     Reported = false,
-                    Verified = true
+                    Verified = true,
+                    Token = "",
+                    Password = "1234"
                 }, true);
             }
             return _unitOfWork.Users.Find().AsEnumerable();
