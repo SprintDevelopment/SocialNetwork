@@ -30,5 +30,20 @@ namespace SocialNetwork.Models
 
         [Required]
         public float AdminReputation { get; set; }
+
+        [Required(AllowEmptyStrings = true)]
+        public string Token { get; internal set; }
+
+        [Required(AllowEmptyStrings = true)]
+        public string Password { get; internal set; }
+    }
+
+    public class UserLoginOrder
+    {
+        [Required]
+        public string Username { get; set; }
+
+        [Required]
+        public string Password { get; set; }
     }
 }

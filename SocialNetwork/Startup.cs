@@ -7,6 +7,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using SocialNetwork.Data.Repositories;
+using SocialNetwork.Assets.AppSettingsOptions;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using SocialNetwork.Services;
 
 namespace SocialNetwork
 {
@@ -22,10 +26,27 @@ namespace SocialNetwork
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
-            
+
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IUserService, UserService>();
             services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
+
+            services.Configure<TokenOptions>(Configuration.GetSection("AppSettings"));
+
+            services.AddAuthentication().AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["AppSettings:SecretKey"])),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                };
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SocialNetwork", Version = "v1" });
@@ -50,6 +71,7 @@ namespace SocialNetwork
 
             app.UseRouting();
 
+            app.UseAuthentication(); 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

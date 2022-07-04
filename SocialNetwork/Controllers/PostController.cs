@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using System.Linq;
 
 namespace SocialNetwork.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     [Route("[controller]")]
     public class PostController : ControllerBase
@@ -42,8 +44,7 @@ namespace SocialNetwork.Controllers
             //    Symbol = "ETHUSDT",
             //    AutoReportTime = null,
             //}, true);
-
-            IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags).Include(p => p.PostVotes.Where(pp => pp.UserID == "645a1679-3a51-4ca8-8530-134f2b148ab3"));
+            IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags).Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
 
             query = user.IsNullOrWhitespace() ? query : query.Where(p => p.UserId == user); // user
             query = date is null ? query : query.Where(p => p.CreateTime.Date == date.Value.Date); // date
@@ -53,6 +54,28 @@ namespace SocialNetwork.Controllers
                         .Paginate(offset, limit)
                         .Select(p => _mapper.Map<SearchPostDto>(p))
                         .AsEnumerable();
+        }
+
+        [HttpGet("latest")]
+        public IEnumerable<SearchPostDto> Latest(int offset, int limit)
+        {
+            IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags).Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
+
+            return query.OrderByDescending(p => p.CreateTime)
+                        .Paginate(offset, limit)
+                        .Select(p => _mapper.Map<SearchPostDto>(p))
+                        .AsEnumerable();
+        }
+
+        [HttpGet("{post_id}")]
+        public SearchPostDto Get(int post_id)
+        {
+            return _unitOfWork.Posts
+                    .Find(p => p.Id == post_id)
+                    .Include(p => p.PostTags)
+                    .Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name))
+                    .Select(p => _mapper.Map<SearchPostDto>(p))
+                    .FirstOrDefault();
         }
 
         [HttpPost]

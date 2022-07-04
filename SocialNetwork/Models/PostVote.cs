@@ -8,22 +8,22 @@ namespace SocialNetwork.Models
     public class PostVote : BaseModel
     {
         [Key]
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreateTime { get; set; }
 
         [Required]
         public bool IsDown { get; set; }
         
         [Required]
-        public int PostID { get; set; }
+        public int PostId { get; set; }
         
         [JsonIgnore]
-        [ForeignKey(nameof(PostID))]
+        [ForeignKey(nameof(PostId))]
         public Post Post { get; set; }
 
         [Required]
-        public string UserID { get; set; }
+        public string UserId { get; set; }
     }
 }

@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
+using SocialNetwork.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +15,30 @@ namespace SocialNetwork.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
+        private readonly IUserService _userService;
         private readonly ILogger<UserController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserController(ILogger<UserController> logger, IUnitOfWork unitOfWork)
+        public UserController(IUserService userService, ILogger<UserController> logger, IUnitOfWork unitOfWork)
         {
+            _userService = userService;
             _unitOfWork = unitOfWork;
             _logger = logger;
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult Login([FromBody] UserLoginOrder userLoginOrder)
+        {
+            var user = _unitOfWork.Users.Find(u => u.Username == userLoginOrder.Username && u.Password == userLoginOrder.Password).FirstOrDefault();
+
+            if (user != null)
+            {
+                _userService.TokenizeUser(user);
+                return Ok(user);
+            }
+
+            return Unauthorized();
         }
 
         [HttpGet]
