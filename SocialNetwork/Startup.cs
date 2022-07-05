@@ -11,6 +11,7 @@ using SocialNetwork.Assets.AppSettingsOptions;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using SocialNetwork.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace SocialNetwork
 {
@@ -27,6 +28,7 @@ namespace SocialNetwork
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUserService, UserService>();
             services.AddAutoMapper(typeof(Startup));

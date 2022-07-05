@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace SocialNetwork.Models
 {
-    public class Post : BaseModel
+    public class Post : HasUserId
     {
         [Key]
         public int Id { get; set; }
@@ -19,9 +19,6 @@ namespace SocialNetwork.Models
 
         [Required]
         public bool Reported { get; set; }
-
-        [Required]
-        public string UserId { get; set; }
 
         [ForeignKey(nameof(UserId))]
         public User Author { get; set; }
@@ -66,6 +63,26 @@ namespace SocialNetwork.Models
         
         [Required]
         public bool NotificationSent { get; set; }
+    }
+
+    public class PostCuOrder : ShouldPassUserId
+    {
+        [Key]
+        public int Id { get; set; }
+        
+        [Required]
+        public string Text { get; set; }
+
+        [Required(AllowEmptyStrings = true)]
+        public string Image { get; set; }
+
+        [Required(AllowEmptyStrings = true)]
+        public string Description { get; set; }
+
+        [Required]
+        public string Symbol { get; set; }
+
+        public virtual IEnumerable<string> Tags { get; set; }
     }
 
     public class SearchPostDto

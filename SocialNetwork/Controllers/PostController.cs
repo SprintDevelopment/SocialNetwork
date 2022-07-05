@@ -9,6 +9,7 @@ using SocialNetwork.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SocialNetwork.Controllers
 {
@@ -31,19 +32,6 @@ namespace SocialNetwork.Controllers
         [HttpGet]
         public IEnumerable<SearchPostDto> Get(string user, string tag, DateTime? date, int offset, int limit)
         {
-            //_unitOfWork.Posts.Add(new Post
-            //{
-            //    CreateTime = DateTime.Now,
-            //    Text = "New post",
-            //    UserId = "d74a1dc7-3b5b-4c96-8945-e976c5364564",
-            //    Image = "",
-            //    EditTime = null,
-            //    Description = "",
-            //    Score = 1,
-            //    ScoreTime = 2,
-            //    Symbol = "ETHUSDT",
-            //    AutoReportTime = null,
-            //}, true);
             IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags).Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
 
             query = user.IsNullOrWhitespace() ? query : query.Where(p => p.UserId == user); // user
@@ -79,14 +67,17 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public Post Create(Post post)
+        public async Task<Post> Create(PostCuOrder postCuOrder)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.Posts.Add(post, true);
+                
+                var post = _mapper.Map<Post>(postCuOrder);
 
+                _unitOfWork.Posts.Add(post, true);
                 _unitOfWork.PostTags.AddRange(post.PostTags.Select(pt => new PostTag { PostID = post.Id, TagID = pt.TagID }));
-                _unitOfWork.CompleteAsync().Wait();
+                
+                await _unitOfWork.CompleteAsync();
 
                 return post;
             }
