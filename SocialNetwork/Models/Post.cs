@@ -121,19 +121,10 @@ namespace SocialNetwork.Models
 
         [JsonPropertyName("my_vote")]
         public int MyVote { get; set; }
+    }
 
-        //public SearchPostDto(Post post)
-        //{
-        //    Id = post.Id;
-        //    Text = post.Text;
-        //    UserId = post.UserId;
-        //    Image = post.Image;
-        //    Reported = post.Reported;
-        //    Comments = post.Comments;
-        //    Likes = post.Likes;
-        //    Dislikes = post.Dislikes;
-        //    CreateTime = post.CreateTime;
-
-        //}
+    public class SinglePostDto : SearchPostDto
+    {
+        public SimpleUserDto Author { get; set; }
     }
 }

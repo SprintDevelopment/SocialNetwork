@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SocialNetwork.Models
 {
@@ -45,5 +46,22 @@ namespace SocialNetwork.Models
 
         [Required]
         public string Password { get; set; }
+    }
+
+    public class SimpleUserDto
+    {
+        public string Id { get; set; }
+
+        public string Username { get; set; }
+
+        [JsonPropertyName("created_at")]
+        public DateTime CreatedAt { get; set; }
+
+        [JsonPropertyName("blocked_until")]
+        public DateTime? BlockedUntil { get; set; }
+
+        public bool Reported { get; set; }
+
+        public bool Verified { get; set; }
     }
 }

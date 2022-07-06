@@ -44,8 +44,8 @@ namespace SocialNetwork.Controllers
                         .AsEnumerable();
         }
 
-        [HttpGet("latest")]
-        public IEnumerable<SearchPostDto> Latest(int offset, int limit)
+        [HttpGet("latests")]
+        public IEnumerable<SearchPostDto> Latests(int offset, int limit)
         {
             IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags).Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
 
@@ -55,14 +55,26 @@ namespace SocialNetwork.Controllers
                         .AsEnumerable();
         }
 
+        [HttpGet("mine")]
+        public IEnumerable<SearchPostDto> MyPosts(int offset, int limit)
+        {
+            IQueryable<Post> query = _unitOfWork.Posts.Find(p => p.UserId == User.Identity.Name).Include(p => p.PostTags).Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
+
+            return query.OrderByDescending(p => p.CreateTime)
+                        .Paginate(offset, limit)
+                        .Select(p => _mapper.Map<SearchPostDto>(p))
+                        .AsEnumerable();
+        }
+
         [HttpGet("{post_id}")]
-        public SearchPostDto Get(int post_id)
+        public SinglePostDto Get(int post_id)
         {
             return _unitOfWork.Posts
                     .Find(p => p.Id == post_id)
+                    .Include(p => p.Author)
                     .Include(p => p.PostTags)
                     .Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name))
-                    .Select(p => _mapper.Map<SearchPostDto>(p))
+                    .Select(p => _mapper.Map<SinglePostDto>(p))
                     .FirstOrDefault();
         }
 
