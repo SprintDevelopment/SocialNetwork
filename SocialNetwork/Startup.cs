@@ -12,6 +12,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using SocialNetwork.Services;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace SocialNetwork
 {
@@ -25,6 +26,8 @@ namespace SocialNetwork
         public IConfiguration Configuration { get; }
         public void ConfigureServices(IServiceCollection services)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -61,7 +64,7 @@ namespace SocialNetwork
             {
                 scope.ServiceProvider.GetService<ApplicationDbContext>().Database.Migrate();
             }
-
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

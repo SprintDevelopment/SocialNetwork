@@ -1,23 +1,35 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SocialNetwork.Models
 {
-    public class CommentVote : BaseModel
+    public class CommentVote : HasUserId
     {
         [Key]
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreateTime { get; set; } = DateTime.Now;
         
         [Required]
         public bool IsDown { get; set; }
         
         [Required]
-        public int CommentID { get; set; }
-        
+        public int CommentId { get; set; }
+
+        [JsonIgnore]
+        [ForeignKey(nameof(CommentId))]
+        public Comment Comment { get; set; }
+    }
+
+    public class CommentVoteCuOrder : ShouldPassUserId
+    {
         [Required]
-        public string UserID { get; set; }
+        public bool IsDown { get; set; }
+
+        [Required]
+        public int CommentId { get; set; }
     }
 }

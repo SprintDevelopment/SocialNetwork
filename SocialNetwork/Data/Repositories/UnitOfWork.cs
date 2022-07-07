@@ -10,6 +10,7 @@ namespace SocialNetwork.Data.Repositories
         ICommentVoteRepository CommentVotes { get; }
         IPostRepository Posts { get; }
         IPostTagRepository PostTags { get; }
+        IPostReportRepository PostReports { get; }
         IPostVoteRepository PostVotes { get; }
         IUserRepository Users { get; }
 
@@ -26,6 +27,7 @@ namespace SocialNetwork.Data.Repositories
             Comments = new CommentRepository(_context);
             CommentVotes = new CommentVoteRepository(_context);
             Posts = new PostRepository(_context);
+            PostReports = new PostReportRepository(_context);
             PostTags = new PostTagRepository(_context);
             PostVotes = new PostVoteRepository(_context);
             Users = new UserRepository(_context);
@@ -34,6 +36,7 @@ namespace SocialNetwork.Data.Repositories
         public ICommentRepository Comments { get; private set; }
         public ICommentVoteRepository CommentVotes { get; private set; }
         public IPostRepository Posts { get; private set; }
+        public IPostReportRepository PostReports { get; private set; }
         public IPostTagRepository PostTags { get; private set; }
         public IPostVoteRepository PostVotes { get; private set; }
         public IUserRepository Users { get; private set; }

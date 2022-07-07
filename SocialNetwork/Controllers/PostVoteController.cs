@@ -49,7 +49,7 @@ namespace SocialNetwork.Controllers
                         
                     _ = postVote.IsDown ? post.Dislikes++ : post.Likes++;
 
-                    _unitOfWork.CompleteAsync().Wait();
+                    await _unitOfWork.CompleteAsync();
 
                     return postVote;
                 }

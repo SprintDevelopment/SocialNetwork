@@ -30,6 +30,7 @@ namespace SocialNetwork.Assets
         {
             CreateMap<User, SimpleUserDto>();
 
+            // Post
             CreateMap<Post, SearchPostDto>()
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
@@ -38,15 +39,38 @@ namespace SocialNetwork.Assets
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
 
-            CreateMap<PostVoteCuOrder, PostVote>()
-                .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
-                .AfterMap<SetUserId>(); ;
-
             CreateMap<PostCuOrder, Post>()
                 .ForMember(model => model.CreateTime, opt => { opt.PreCondition(order => order.Id == 0); opt.MapFrom(order => DateTime.Now); })
                 .ForMember(model => model.EditTime, opt => { opt.PreCondition(order => order.Id != 0); opt.MapFrom(order => DateTime.Now); })
                 .ForMember(model => model.PostTags, opt => opt.MapFrom(order => order.Tags.Select(t => new PostTag { TagID = t })))
                 .AfterMap<SetUserId>();
+
+            // PostVote
+            CreateMap<PostVoteCuOrder, PostVote>()
+                .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
+                .AfterMap<SetUserId>(); ;
+
+            // PostVote
+            CreateMap<PostReportCuOrder, PostReport>()
+                .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
+                .AfterMap<SetUserId>(); ;
+
+            // Comment
+            CreateMap<Comment, SearchCommentDto>()
+                .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.CommentVotes.Any() ? (model.CommentVotes.First().IsDown ? -1 : 1) : 0));
+
+            CreateMap<Comment, SingleCommentDto>()
+                .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.CommentVotes.Any() ? (model.CommentVotes.First().IsDown ? -1 : 1) : 0));
+
+            CreateMap<CommentCuOrder, Comment>()
+                .ForMember(model => model.CreateTime, opt => { opt.PreCondition(order => order.Id == 0); opt.MapFrom(order => DateTime.Now); })
+                .ForMember(model => model.EditTime, opt => { opt.PreCondition(order => order.Id != 0); opt.MapFrom(order => DateTime.Now); })
+                .AfterMap<SetUserId>();
+
+            // CommentVote
+            CreateMap<CommentVoteCuOrder, CommentVote>()
+                .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
+                .AfterMap<SetUserId>(); ;
         }
     }
 }

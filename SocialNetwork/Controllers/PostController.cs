@@ -32,7 +32,7 @@ namespace SocialNetwork.Controllers
         [HttpGet]
         public IEnumerable<SearchPostDto> Get(string user, string tag, DateTime? date, int offset, int limit)
         {
-            IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags).Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
+            IQueryable<Post> query = _unitOfWork.Posts.Find().Include(p => p.PostTags).Include(p => p.PostVotes.Where(pv => pv.UserId == User.Identity.Name));
 
             query = user.IsNullOrWhitespace() ? query : query.Where(p => p.UserId == user); // user
             query = date is null ? query : query.Where(p => p.CreateTime.Date == date.Value.Date); // date

@@ -67,7 +67,6 @@ namespace SocialNetwork.Models
 
     public class PostCuOrder : ShouldPassUserId
     {
-        [Key]
         public int Id { get; set; }
         
         [Required]
@@ -108,7 +107,7 @@ namespace SocialNetwork.Models
         public DateTime CreateTime { get; set; }
 
         [JsonPropertyName("edited_at")]
-        public DateTime? EditeTime { get; set; }
+        public DateTime? EditTime { get; set; }
 
         public IEnumerable<string> Tags { get; set; }
 

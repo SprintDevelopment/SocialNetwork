@@ -8,7 +8,6 @@ namespace SocialNetwork.Data.Repositories
 {
     public interface IPostRepository : IRepository<Post>
     {
-        IEnumerable<Post> GetLatest(int pageNumber);
     }
 
     public class PostRepository : Repository<Post>, IPostRepository
@@ -18,11 +17,6 @@ namespace SocialNetwork.Data.Repositories
         public ApplicationDbContext DatabaseContext
         {
             get { return Context as ApplicationDbContext; }
-        }
-
-        public IEnumerable<Post> GetLatest(int pageNumber = 0)
-        {
-            return Find(x => true).OrderBy(x => x.CreateTime).Paginate(pageNumber);
         }
     }
 }

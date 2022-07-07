@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SocialNetwork.Assets.Extensions;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using System.Collections.Generic;
@@ -9,52 +12,49 @@ using System.Threading.Tasks;
 
 namespace SocialNetwork.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     [Route("[controller]")]
     public class CommentController : ControllerBase
     {
+        private readonly IMapper _mapper;
         private readonly ILogger<CommentController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CommentController(ILogger<CommentController> logger, IUnitOfWork unitOfWork)
+        public CommentController(IMapper mapper, ILogger<CommentController> logger, IUnitOfWork unitOfWork)
         {
+            _mapper = mapper;
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
         [HttpGet]
-        public IEnumerable<Comment> Get()
+        public IEnumerable<SearchCommentDto> Get(int post, int offset, int limit)
         {
-            //_unitOfWork.Posts.Add(new Post
-            //{
-            //    CreatedAt = DateTime.Now,
-            //    Text = "New post",
-            //    UserID = "4f4abcde-757f-433c-92a2-03a6da043a0c",
-            //    Image = "",
-            //    EditedAt = null,
-            //    Description = "",
-            //    Score = 1,
-            //    ScoreTime = 2,
-            //    Symbol = "ETHUSDT",
-            //    AutoReportTime = null,
-            //}, true);
+            IQueryable<Comment> query = _unitOfWork.Comments.Find().Include(c => c.CommentVotes.Where(cv => cv.UserId == User.Identity.Name));
 
-            return _unitOfWork.Comments.Find().AsEnumerable();
+            query = post != 0 ? query : query.Where(c => c.PostId == post); // user
+
+            return query.OrderBy(c => c.CreateTime)
+                        .Paginate(offset, limit)
+                        .Select(c => _mapper.Map<SearchCommentDto>(c))
+                        .AsEnumerable();
         }
 
-        //[HttpPost]
-        //public async Task<Comment> Create(Comment comment)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _unitOfWork.Comments.Add(comment);
-        //        await _unitOfWork.Posts.Find(p => p.ID == comment.PostID).ForEachAsync(p => p.Comments++);
-                
-        //        await _unitOfWork.CompleteAsync();
+        [HttpPost]
+        public async Task<Comment> Create(CommentCuOrder commentCuOrder)
+        {
+            if (ModelState.IsValid)
+            {
+                var comment = _mapper.Map<Comment>(commentCuOrder);
 
-        //        return comment;
-        //    }
-        //    return null;
-        //}
+                _unitOfWork.Comments.Add(comment, true);
+                // codes for add comment count 
+                await _unitOfWork.CompleteAsync();
+
+                return comment;
+            }
+            return null;
+        }
     }
 }
