@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-#nullable disable
-
 namespace SocialNetwork.Migrations
 {
     public partial class init : Migration
@@ -11,19 +9,52 @@ namespace SocialNetwork.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "CommentVotes",
+                name: "CommentReports",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsDown = table.Column<bool>(type: "boolean", nullable: false),
-                    CommentID = table.Column<int>(type: "integer", nullable: false),
-                    UserID = table.Column<string>(type: "text", nullable: false)
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false),
+                    ReportedCommentId = table.Column<int>(type: "integer", nullable: false),
+                    Checked = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommentVotes", x => x.ID);
+                    table.PrimaryKey("PK_CommentReports", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PostReports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false),
+                    ReportedPostId = table.Column<int>(type: "integer", nullable: false),
+                    Checked = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostReports", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Relationships",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Time = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    FollowingId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Relationships", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -32,8 +63,8 @@ namespace SocialNetwork.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     Username = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    BlockedUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    BlockedUntil = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     Reported = table.Column<bool>(type: "boolean", nullable: false),
                     Verified = table.Column<bool>(type: "boolean", nullable: false),
                     WhiteList = table.Column<bool>(type: "boolean", nullable: false),
@@ -53,18 +84,18 @@ namespace SocialNetwork.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CreateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Text = table.Column<string>(type: "text", nullable: false),
                     Reported = table.Column<bool>(type: "boolean", nullable: false),
                     Image = table.Column<string>(type: "text", nullable: false),
-                    EditTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EditTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     AutoReport = table.Column<bool>(type: "boolean", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     AdminWhitelist = table.Column<bool>(type: "boolean", nullable: false),
                     Score = table.Column<float>(type: "real", nullable: false),
                     ScoreTime = table.Column<float>(type: "real", nullable: false),
                     Symbol = table.Column<string>(type: "text", nullable: false),
-                    AutoReportTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    AutoReportTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     Comments = table.Column<int>(type: "integer", nullable: false),
                     Likes = table.Column<int>(type: "integer", nullable: false),
                     Dislikes = table.Column<int>(type: "integer", nullable: false),
@@ -88,20 +119,20 @@ namespace SocialNetwork.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CreatedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Text = table.Column<string>(type: "text", nullable: false),
                     Reported = table.Column<bool>(type: "boolean", nullable: false),
                     PostId = table.Column<int>(type: "integer", nullable: false),
                     ReplyTo = table.Column<int>(type: "integer", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    EditTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EditTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     AutoReport = table.Column<bool>(type: "boolean", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     AdminWhitelist = table.Column<bool>(type: "boolean", nullable: false),
-                    NotificationSent = table.Column<bool>(type: "boolean", nullable: false),
                     Likes = table.Column<int>(type: "integer", nullable: false),
                     Dislikes = table.Column<int>(type: "integer", nullable: false),
-                    Replies = table.Column<int>(type: "integer", nullable: false)
+                    Replies = table.Column<int>(type: "integer", nullable: false),
+                    NotificationSent = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -140,7 +171,7 @@ namespace SocialNetwork.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CreateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     IsDown = table.Column<bool>(type: "boolean", nullable: false),
                     PostId = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false)
@@ -156,10 +187,37 @@ namespace SocialNetwork.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CommentVotes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    IsDown = table.Column<bool>(type: "boolean", nullable: false),
+                    CommentId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommentVotes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CommentVotes_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_PostId",
                 table: "Comments",
                 column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommentVotes_CommentId",
+                table: "CommentVotes",
+                column: "CommentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Posts_UserId",
@@ -180,16 +238,25 @@ namespace SocialNetwork.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Comments");
+                name: "CommentReports");
 
             migrationBuilder.DropTable(
                 name: "CommentVotes");
+
+            migrationBuilder.DropTable(
+                name: "PostReports");
 
             migrationBuilder.DropTable(
                 name: "PostTags");
 
             migrationBuilder.DropTable(
                 name: "PostVotes");
+
+            migrationBuilder.DropTable(
+                name: "Relationships");
+
+            migrationBuilder.DropTable(
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "Posts");

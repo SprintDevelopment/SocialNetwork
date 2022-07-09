@@ -19,7 +19,6 @@ namespace SocialNetwork.Models
         [Required]
         public int PostId { get; set; }
         
-        [JsonIgnore]
         [ForeignKey(nameof(PostId))]
         public Post Post { get; set; }
     }

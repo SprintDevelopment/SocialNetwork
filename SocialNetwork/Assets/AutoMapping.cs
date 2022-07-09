@@ -28,7 +28,15 @@ namespace SocialNetwork.Assets
     {
         public AutoMapping()
         {
+            // User
             CreateMap<User, SimpleUserDto>();
+
+            // Relationship
+            CreateMap<Relationship, RelationshipDto>();
+
+            CreateMap<RelationshipCuOrder, Relationship>()
+                .ForMember(model => model.Time, opt => opt.MapFrom(order => DateTime.Now))
+                .AfterMap<SetUserId>();
 
             // Post
             CreateMap<Post, SearchPostDto>()
@@ -48,7 +56,7 @@ namespace SocialNetwork.Assets
             // PostVote
             CreateMap<PostVoteCuOrder, PostVote>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
-                .AfterMap<SetUserId>(); ;
+                .AfterMap<SetUserId>();
 
             // PostVote
             CreateMap<PostReportCuOrder, PostReport>()
@@ -70,7 +78,7 @@ namespace SocialNetwork.Assets
             // CommentVote
             CreateMap<CommentVoteCuOrder, CommentVote>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
-                .AfterMap<SetUserId>(); ;
+                .AfterMap<SetUserId>();
         }
     }
 }

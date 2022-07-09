@@ -7,30 +7,26 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SocialNetwork.Data;
 
-#nullable disable
-
 namespace SocialNetwork.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220707052803_init")]
+    [Migration("20220709044831_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.6")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
-
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63)
+                .HasAnnotation("ProductVersion", "5.0.17")
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("SocialNetwork.Models.Comment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("AdminWhitelist")
                         .HasColumnType("boolean");
@@ -38,8 +34,8 @@ namespace SocialNetwork.Migrations
                     b.Property<bool>("AutoReport")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -49,7 +45,7 @@ namespace SocialNetwork.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("EditTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Likes")
                         .HasColumnType("integer");
@@ -84,28 +80,58 @@ namespace SocialNetwork.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Models.CommentReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<bool>("Checked")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("ReportedCommentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommentReports");
+                });
+
             modelBuilder.Entity("SocialNetwork.Models.CommentVote", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("CommentId")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
-
-                    b.Property<int>("CommentID")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDown")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("UserID")
+                    b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
 
                     b.ToTable("CommentVotes");
                 });
@@ -114,9 +140,8 @@ namespace SocialNetwork.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<bool>("AdminWhitelist")
                         .HasColumnType("boolean");
@@ -125,13 +150,13 @@ namespace SocialNetwork.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("AutoReportTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Comments")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -141,7 +166,7 @@ namespace SocialNetwork.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("EditTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Image")
                         .IsRequired()
@@ -181,13 +206,41 @@ namespace SocialNetwork.Migrations
                     b.ToTable("Posts");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Models.PostReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<bool>("Checked")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("ReportedPostId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PostReports");
+                });
+
             modelBuilder.Entity("SocialNetwork.Models.PostTag", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int>("PostID")
                         .HasColumnType("integer");
@@ -207,12 +260,11 @@ namespace SocialNetwork.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDown")
                         .HasColumnType("boolean");
@@ -231,6 +283,29 @@ namespace SocialNetwork.Migrations
                     b.ToTable("PostVotes");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Models.Relationship", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("FollowingId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Relationships");
+                });
+
             modelBuilder.Entity("SocialNetwork.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -240,10 +315,10 @@ namespace SocialNetwork.Migrations
                         .HasColumnType("real");
 
                     b.Property<DateTime?>("BlockedUntil")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -285,6 +360,17 @@ namespace SocialNetwork.Migrations
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Models.CommentVote", b =>
+                {
+                    b.HasOne("SocialNetwork.Models.Comment", "Comment")
+                        .WithMany("CommentVotes")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+                });
+
             modelBuilder.Entity("SocialNetwork.Models.Post", b =>
                 {
                     b.HasOne("SocialNetwork.Models.User", "Author")
@@ -316,6 +402,11 @@ namespace SocialNetwork.Migrations
                         .IsRequired();
 
                     b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("SocialNetwork.Models.Comment", b =>
+                {
+                    b.Navigation("CommentVotes");
                 });
 
             modelBuilder.Entity("SocialNetwork.Models.Post", b =>
