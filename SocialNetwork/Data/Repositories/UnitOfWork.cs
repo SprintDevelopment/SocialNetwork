@@ -7,6 +7,7 @@ namespace SocialNetwork.Data.Repositories
     {
         ApplicationDbContext GetContext();
         ICommentRepository Comments { get; }
+        ICommentReportRepository CommentReports { get; }
         ICommentVoteRepository CommentVotes { get; }
         IPostRepository Posts { get; }
         IPostTagRepository PostTags { get; }
@@ -25,6 +26,7 @@ namespace SocialNetwork.Data.Repositories
             _context = context;
 
             Comments = new CommentRepository(_context);
+            CommentReports = new CommentReportRepository(_context);
             CommentVotes = new CommentVoteRepository(_context);
             Posts = new PostRepository(_context);
             PostReports = new PostReportRepository(_context);
@@ -34,6 +36,7 @@ namespace SocialNetwork.Data.Repositories
         }
 
         public ICommentRepository Comments { get; private set; }
+        public ICommentReportRepository CommentReports { get; private set; }
         public ICommentVoteRepository CommentVotes { get; private set; }
         public IPostRepository Posts { get; private set; }
         public IPostReportRepository PostReports { get; private set; }

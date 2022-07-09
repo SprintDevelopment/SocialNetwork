@@ -12,7 +12,7 @@ namespace SocialNetwork.Controllers
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     [Route("[controller]")]
-    public class CommentVoteController : Controller
+    public class CommentVoteController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly ILogger<CommentVoteController> _logger;

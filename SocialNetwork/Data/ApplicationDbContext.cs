@@ -14,6 +14,7 @@ namespace SocialNetwork.Data
         }
 
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<CommentReport> CommentReports { get; set; }
         public DbSet<CommentVote> CommentVotes { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<PostReport> PostReports { get; set; }

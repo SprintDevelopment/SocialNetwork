@@ -12,7 +12,7 @@ namespace SocialNetwork.Controllers
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     [Route("[controller]")]
-    public class PostReportController : Controller
+    public class PostReportController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly ILogger<PostReportController> _logger;
