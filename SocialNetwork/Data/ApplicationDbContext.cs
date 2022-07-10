@@ -22,5 +22,6 @@ namespace SocialNetwork.Data
         public DbSet<PostVote> PostVotes { get; set; }
         public DbSet<Relationship> Relationships { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UserReport> UserReports { get; set; }
     }
 }

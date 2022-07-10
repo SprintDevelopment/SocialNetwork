@@ -15,6 +15,7 @@ namespace SocialNetwork.Data.Repositories
         IPostVoteRepository PostVotes { get; }
         IRelationshipRepository Relationships { get; }
         IUserRepository Users { get; }
+        IUserReportRepository UserReports { get; }
 
         Task<int> CompleteAsync();
     }
@@ -34,6 +35,7 @@ namespace SocialNetwork.Data.Repositories
             PostTags = new PostTagRepository(_context);
             PostVotes = new PostVoteRepository(_context);
             Relationships = new RelationshipRepository(_context);
+            UserReports = new UserReportRepository(_context);
             Users = new UserRepository(_context);
         }
 
@@ -46,6 +48,7 @@ namespace SocialNetwork.Data.Repositories
         public IPostVoteRepository PostVotes { get; private set; }
         public IRelationshipRepository Relationships { get; private set; }
         public IUserRepository Users { get; private set; }
+        public IUserReportRepository UserReports { get; private set; }
 
         public async Task<int> CompleteAsync()
         {

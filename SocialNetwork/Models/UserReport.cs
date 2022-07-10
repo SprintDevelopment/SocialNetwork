@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SocialNetwork.Models
 {
-    public class CommentReport : HasUserId
+    public class UserReport : HasUserId
     {
         [Key]
         public long Id { get; set; }
@@ -15,18 +18,18 @@ namespace SocialNetwork.Models
         public string Text { get; set; }
 
         [Required]
-        public int ReportedCommentId { get; set; }
+        public int ReportedUserId { get; set; }
 
         [Required]
         public bool Checked { get; set; }
     }
 
-    public class CommentReportCuOrder : ShouldPassUserId
+    public class UserReportCuOrder : ShouldPassUserId
     {
         [Required]
         public string Text { get; set; }
 
         [Required]
-        public int ReportedCommentId { get; set; }
+        public string ReportedUserId { get; set; }
     }
 }
