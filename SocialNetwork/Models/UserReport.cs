@@ -18,7 +18,7 @@ namespace SocialNetwork.Models
         public string Text { get; set; }
 
         [Required]
-        public int ReportedUserId { get; set; }
+        public string ReportedUserId { get; set; }
 
         [Required]
         public bool Checked { get; set; }

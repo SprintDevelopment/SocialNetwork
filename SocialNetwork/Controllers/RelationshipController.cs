@@ -39,24 +39,39 @@ namespace SocialNetwork.Controllers
                         .AsEnumerable();
         }
 
-        [HttpPost]
-        public async Task<Relationship> Create(RelationshipCuOrder relationshipCuOrder)
+        [HttpPost("follow")]
+        public async Task<Relationship> Follow(RelationshipCuOrder relationshipCuOrder)
         {
             if (ModelState.IsValid)
             {
                 var relationship = _mapper.Map<Relationship>(relationshipCuOrder);
-                var followingUser = await _unitOfWork.Relationships.GetAsync(relationshipCuOrder.FollowingId);
+                var followingUser = await _unitOfWork.Users.GetAsync(relationshipCuOrder.FollowingId);
 
                 if (followingUser is not null)
                 {
                     var preRelationship = _unitOfWork.Relationships.Find(r => r.UserId == relationship.UserId && r.FollowingId == relationship.FollowingId).FirstOrDefault();
-                    if (preRelationship is not null) ;
-                        //_mapper.Map(relationshipCuOrder, preReport);
-                    else
-                        _unitOfWork.Relationships.Add(relationship);
+                    if (preRelationship is null)
+                        _unitOfWork.Relationships.Add(relationship, true);
 
+                    return relationship;
+                }
+            }
+
+            return null;
+        }
+
+        [HttpPost("unfollow")]
+        public async Task<Relationship> Unfollow(RelationshipCuOrder relationshipCuOrder)
+        {
+            if (ModelState.IsValid)
+            {
+                var relationship = _mapper.Map<Relationship>(relationshipCuOrder);
+                var preRelationship = _unitOfWork.Relationships.Find(r => r.UserId == relationship.UserId && r.FollowingId == relationship.FollowingId).FirstOrDefault();
+                
+                if (preRelationship is not null)
+                {
+                    _unitOfWork.Relationships.Remove(relationship);
                     await _unitOfWork.CompleteAsync();
-
                     return relationship;
                 }
             }

@@ -13,6 +13,7 @@ namespace SocialNetwork.Data
         {
         }
 
+        public DbSet<Block> Blocks { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<CommentReport> CommentReports { get; set; }
         public DbSet<CommentVote> CommentVotes { get; set; }

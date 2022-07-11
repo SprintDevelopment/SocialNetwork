@@ -31,6 +31,16 @@ namespace SocialNetwork.Assets
             // User
             CreateMap<User, SimpleUserDto>();
 
+            // UserReport
+            CreateMap<UserReportCuOrder, UserReport>()
+                .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
+                .AfterMap<SetUserId>(); ;
+
+            // Block
+            CreateMap<BlockCuOrder, Block>()
+                .ForMember(model => model.Time, opt => opt.MapFrom(order => DateTime.Now))
+                .AfterMap<SetUserId>(); ;
+
             // Relationship
             CreateMap<Relationship, RelationshipDto>();
 
@@ -58,7 +68,7 @@ namespace SocialNetwork.Assets
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>();
 
-            // PostVote
+            // PostReport
             CreateMap<PostReportCuOrder, PostReport>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>(); ;
@@ -79,6 +89,11 @@ namespace SocialNetwork.Assets
             CreateMap<CommentVoteCuOrder, CommentVote>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>();
+
+            // CommentReport
+            CreateMap<CommentReportCuOrder, CommentReport>()
+                .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
+                .AfterMap<SetUserId>(); ;
         }
     }
 }
