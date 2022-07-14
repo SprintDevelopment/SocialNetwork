@@ -44,7 +44,7 @@ namespace SocialNetwork.Assets
             // Relationship
             CreateMap<Relationship, RelationshipDto>();
 
-            CreateMap<RelationshipCuOrder, Relationship>()
+            CreateMap<RelationshipTemplate, Relationship>()
                 .ForMember(model => model.Time, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>();
 

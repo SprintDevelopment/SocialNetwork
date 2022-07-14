@@ -14,7 +14,7 @@ namespace SocialNetwork.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("comments")]
     public class CommentController : ControllerBase
     {
         private readonly IMapper _mapper;

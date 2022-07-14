@@ -31,7 +31,8 @@ namespace SocialNetwork.Models
         public SimpleUserDto FollowingUser { get; set; }
     }
 
-    public class RelationshipCuOrder : ShouldPassUserId
+    // Note that this is a model only for mapping. FollowingId will be passed via query string.
+    public class RelationshipTemplate : ShouldPassUserId
     {
         [Required]
         public string FollowingId { get; set; }

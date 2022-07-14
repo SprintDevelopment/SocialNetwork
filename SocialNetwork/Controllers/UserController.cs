@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using SocialNetwork.Services;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 namespace SocialNetwork.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("users")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -27,41 +28,35 @@ namespace SocialNetwork.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost]
-        public IActionResult Login([FromBody] UserLoginOrder userLoginOrder)
+        [HttpPost("Login")]
+        public IActionResult Login(UserLoginOrder userLoginOrder)
         {
-            var user = _unitOfWork.Users.Find(u => u.Username == userLoginOrder.Username && u.Password == userLoginOrder.Password).FirstOrDefault();
-
-            if (user != null)
+            if (ModelState.IsValid)
             {
-                _userService.TokenizeUser(user);
-                return Ok(user);
+                var user = _unitOfWork.Users.Find(u => u.Username == userLoginOrder.Username && u.Password == userLoginOrder.Password).FirstOrDefault();
+
+                if (user != null)
+                {
+                    _userService.TokenizeUser(user);
+                    return Ok(user);
+                }
+
+                return NotFound(new ResponseDto { Result = false, Error = "no such user found" });
             }
 
-            return Unauthorized();
+            return BadRequest(new ResponseDto { Result = false, Error = "not enough input data" });
         }
 
         [HttpGet]
         public IEnumerable<User> Get()
         {
-            for (int i = 0; i < 5; i++)
-            {
-                _unitOfWork.Users.Add(new User()
-                {
-                    Username = $"Username {i}",
-                    Id = Guid.NewGuid().ToString(),
-                    CreatedAt = DateTime.Now,
-                    BlockedUntil = DateTime.Now,
-                    AdminReputation = 0,
-                    ReportCandidate = false,
-                    WhiteList = true,
-                    Reported = false,
-                    Verified = true,
-                    Token = "",
-                    Password = "1234"
-                }, true);
-            }
             return _unitOfWork.Users.Find().AsEnumerable();
+        }
+
+        [HttpPost]
+        public IActionResult Create()
+        {
+
         }
     }
 }

@@ -15,7 +15,7 @@ namespace SocialNetwork.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("posts")]
     public class PostController : ControllerBase
     {
         private readonly IMapper _mapper;

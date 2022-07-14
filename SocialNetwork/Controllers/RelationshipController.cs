@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SocialNetwork.Assets.Dtos;
+using SocialNetwork.Assets.Extensions;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using System;
@@ -39,13 +41,13 @@ namespace SocialNetwork.Controllers
                         .AsEnumerable();
         }
 
-        [HttpPost("follow")]
-        public async Task<Relationship> Follow(RelationshipCuOrder relationshipCuOrder)
+        [HttpPost("follow/{id}")]
+        public async Task<IActionResult> Follow(string id)
         {
-            if (ModelState.IsValid)
+            if (!id.IsNullOrWhitespace())
             {
-                var relationship = _mapper.Map<Relationship>(relationshipCuOrder);
-                var followingUser = await _unitOfWork.Users.GetAsync(relationshipCuOrder.FollowingId);
+                var relationship = _mapper.Map<Relationship>(new RelationshipTemplate { FollowingId = id });
+                var followingUser = await _unitOfWork.Users.GetAsync(relationship.FollowingId);
 
                 if (followingUser is not null)
                 {
@@ -53,30 +55,33 @@ namespace SocialNetwork.Controllers
                     if (preRelationship is null)
                         _unitOfWork.Relationships.Add(relationship, true);
 
-                    return relationship;
+                    return Ok(new ResponseDto { Result = true, Message = "relation created" });
                 }
+                return BadRequest(new ResponseDto { Result = false, Error = $"user with id = {id} not found" });
             }
 
-            return null;
+            return BadRequest(new ResponseDto { Result = false, Error = "not enough input data" });
         }
 
-        [HttpPost("unfollow")]
-        public async Task<Relationship> Unfollow(RelationshipCuOrder relationshipCuOrder)
+        [HttpPost("unfollow/{id}")]
+        public async Task<IActionResult> Unfollow(string id)
         {
-            if (ModelState.IsValid)
+            if (!id.IsNullOrWhitespace())
             {
-                var relationship = _mapper.Map<Relationship>(relationshipCuOrder);
+                var relationship = _mapper.Map<Relationship>(new RelationshipTemplate { FollowingId = id });
                 var preRelationship = _unitOfWork.Relationships.Find(r => r.UserId == relationship.UserId && r.FollowingId == relationship.FollowingId).FirstOrDefault();
                 
                 if (preRelationship is not null)
                 {
                     _unitOfWork.Relationships.Remove(relationship);
                     await _unitOfWork.CompleteAsync();
-                    return relationship;
+
+                    return Ok(new ResponseDto { Result = true, Message = "relation removed"});
                 }
+                return BadRequest(new ResponseDto { Result = false, Error = "no relation found" });
             }
 
-            return null;
+            return BadRequest(new ResponseDto { Result = false, Error = "not enough input data" });
         }
     }
 }

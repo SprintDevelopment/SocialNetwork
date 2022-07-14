@@ -12,7 +12,7 @@ namespace SocialNetwork.Migrations
                 name: "CommentReports",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Text = table.Column<string>(type: "text", nullable: false),
@@ -29,7 +29,7 @@ namespace SocialNetwork.Migrations
                 name: "PostReports",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Text = table.Column<string>(type: "text", nullable: false),
@@ -43,18 +43,20 @@ namespace SocialNetwork.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Relationships",
+                name: "UserReports",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Time = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    FollowingId = table.Column<string>(type: "text", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false),
+                    ReportedUserId = table.Column<string>(type: "text", nullable: false),
+                    Checked = table.Column<bool>(type: "boolean", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Relationships", x => x.Id);
+                    table.PrimaryKey("PK_UserReports", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,6 +78,27 @@ namespace SocialNetwork.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Blocks",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Time = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    BlockedId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Blocks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Blocks_Users_BlockedId",
+                        column: x => x.BlockedId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -108,6 +131,27 @@ namespace SocialNetwork.Migrations
                     table.ForeignKey(
                         name: "FK_Posts_Users_UserId",
                         column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Relationships",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Time = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    FollowingId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Relationships", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Relationships_Users_FollowingId",
+                        column: x => x.FollowingId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -210,6 +254,11 @@ namespace SocialNetwork.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Blocks_BlockedId",
+                table: "Blocks",
+                column: "BlockedId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Comments_PostId",
                 table: "Comments",
                 column: "PostId");
@@ -233,10 +282,18 @@ namespace SocialNetwork.Migrations
                 name: "IX_PostVotes_PostId",
                 table: "PostVotes",
                 column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Relationships_FollowingId",
+                table: "Relationships",
+                column: "FollowingId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Blocks");
+
             migrationBuilder.DropTable(
                 name: "CommentReports");
 
@@ -254,6 +311,9 @@ namespace SocialNetwork.Migrations
 
             migrationBuilder.DropTable(
                 name: "Relationships");
+
+            migrationBuilder.DropTable(
+                name: "UserReports");
 
             migrationBuilder.DropTable(
                 name: "Comments");
