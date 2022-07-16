@@ -13,7 +13,7 @@ namespace SocialNetwork.Models
         public string Username { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreateTime { get; set; }
 
         public DateTime? BlockedUntil { get; set; }
 
@@ -39,6 +39,24 @@ namespace SocialNetwork.Models
         public string Password { get; internal set; }
     }
 
+    public class UserCreateOrder
+    {
+        [Required]
+        public string Id { get; set; }
+
+        [Required]
+        public string Username { get; set; }
+
+        [Required]
+        public string Password { get; set; }
+    }
+
+    public class UserUpdateUsernameOrder
+    {
+        [Required]
+        public string Username { get; set; }
+    }
+
     public class UserLoginOrder
     {
         [Required]
@@ -55,7 +73,7 @@ namespace SocialNetwork.Models
         public string Username { get; set; }
 
         [JsonPropertyName("created_at")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         [JsonPropertyName("blocked_until")]
         public DateTime? BlockedUntil { get; set; }
@@ -63,5 +81,11 @@ namespace SocialNetwork.Models
         public bool Reported { get; set; }
 
         public bool Verified { get; set; }
+    }
+
+    public class UserError
+    {
+        public string ID { get; set; }
+        public string Username { get; set; }
     }
 }

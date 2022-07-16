@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using SocialNetwork.Models;
-using mvc = Microsoft.AspNetCore.Mvc;
+using SocialNetwork.Assets.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,6 +31,10 @@ namespace SocialNetwork.Assets
             // User
             CreateMap<User, SimpleUserDto>();
 
+            CreateMap<UserCreateOrder, User>()
+                .ForMember(model => model.CreateTime, opt => { opt.PreCondition(order => order.Id.IsNullOrWhitespace()); opt.MapFrom(order => DateTime.Now); });
+
+
             // UserReport
             CreateMap<UserReportCuOrder, UserReport>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
@@ -50,10 +54,14 @@ namespace SocialNetwork.Assets
 
             // Post
             CreateMap<Post, SearchPostDto>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
 
             CreateMap<Post, SinglePostDto>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
 
@@ -75,6 +83,8 @@ namespace SocialNetwork.Assets
 
             // Comment
             CreateMap<Comment, SearchCommentDto>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.CommentVotes.Any() ? (model.CommentVotes.First().IsDown ? -1 : 1) : 0));
 
             CreateMap<Comment, SingleCommentDto>()

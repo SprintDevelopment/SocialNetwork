@@ -2,19 +2,17 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace SocialNetwork.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("postvotes")]
     public class PostVoteController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -29,7 +27,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<PostVote> Create(PostVoteCuOrder postVoteCuOrder)
+        public async Task<IActionResult> Create(PostVoteCuOrder postVoteCuOrder)
         {
             if (ModelState.IsValid)
             {
@@ -38,24 +36,73 @@ namespace SocialNetwork.Controllers
 
                 if (post is not null)
                 {
-                    var preVote = _unitOfWork.PostVotes.Find(pv => pv.PostId == postVote.PostId && pv.UserId == postVote.UserId).FirstOrDefault();
-                    if (preVote is not null)
-                    {
-                        _ = postVote.IsDown ? post.Dislikes-- : post.Likes--;
-                        preVote.IsDown = postVote.IsDown;
-                    }
-                    else
-                        _unitOfWork.PostVotes.Add(postVote);
-                        
+                    _unitOfWork.PostVotes.Add(postVote);
+
                     _ = postVote.IsDown ? post.Dislikes++ : post.Likes++;
 
                     await _unitOfWork.CompleteAsync();
 
-                    return postVote;
+                    return Ok(postVote);
                 }
+
+                return NotFound(new ResponseDto { Result = false, Error = "post not found." });
             }
 
-            return null;
+            return BadRequest();
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(PostVoteCuOrder postVoteCuOrder)
+        {
+            if (ModelState.IsValid)
+            {
+                var post = await _unitOfWork.Posts.GetAsync(postVoteCuOrder.PostId);
+
+                if (post is not null)
+                {
+                    var preVote = _unitOfWork.PostVotes.Find(pv => pv.PostId == postVoteCuOrder.PostId && pv.UserId == User.Identity.Name).FirstOrDefault();
+                    if (preVote is not null)
+                    {
+                        _ = preVote.IsDown ? post.Dislikes-- : post.Likes--;
+                        preVote.IsDown = postVoteCuOrder.IsDown;
+                        _ = preVote.IsDown ? post.Dislikes++ : post.Likes++;
+
+                        await _unitOfWork.CompleteAsync();
+
+                        return Ok(preVote);
+                    }
+
+                    return NotFound(new ResponseDto { Result = false, Error = "post vote not found." });
+                }
+
+                return NotFound(new ResponseDto { Result = false, Error = "post not found." });
+            }
+
+            return BadRequest();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(PostVoteCuOrder postVoteCuOrder)
+        {
+            if (ModelState.IsValid)
+            {
+                var post = await _unitOfWork.Posts.GetAsync(postVoteCuOrder.PostId);
+
+                var preVote = _unitOfWork.PostVotes.Find(pv => pv.PostId == postVoteCuOrder.PostId && pv.UserId == User.Identity.Name).FirstOrDefault();
+                if (preVote is not null)
+                {
+                    _ = preVote.IsDown ? post.Dislikes-- : post.Likes--;
+
+                    _unitOfWork.PostVotes.Remove(preVote);
+                    await _unitOfWork.CompleteAsync();
+
+                    return Ok(preVote);
+                }
+
+                return NotFound(new ResponseDto { Result = false, Error = "post vote not found." });
+            }
+
+            return BadRequest();
         }
     }
 }

@@ -10,8 +10,8 @@ using SocialNetwork.Data;
 namespace SocialNetwork.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220714073814_init")]
-    partial class init
+    [Migration("20220716050308_change-createdAt")]
+    partial class changecreatedAt
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -344,7 +344,7 @@ namespace SocialNetwork.Migrations
                     b.Property<DateTime?>("BlockedUntil")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("CreateTime")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Password")

@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using SocialNetwork.Services;
 using Microsoft.AspNetCore.Http;
 using System;
+using Newtonsoft.Json;
 
 namespace SocialNetwork
 {
@@ -35,7 +36,7 @@ namespace SocialNetwork
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUserService, UserService>();
             services.AddAutoMapper(typeof(Startup));
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
             services.Configure<TokenOptions>(Configuration.GetSection("AppSettings"));
 

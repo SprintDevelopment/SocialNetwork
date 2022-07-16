@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace SocialNetwork.Models
 {
@@ -18,7 +18,8 @@ namespace SocialNetwork.Models
         
         [Required]
         public int PostId { get; set; }
-        
+
+        [JsonIgnore]        
         [ForeignKey(nameof(PostId))]
         public Post Post { get; set; }
     }

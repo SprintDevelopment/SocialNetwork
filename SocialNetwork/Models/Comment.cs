@@ -19,7 +19,10 @@ namespace SocialNetwork.Models
 
         [Required]
         public bool Reported { get; set; }
-        
+
+        [ForeignKey(nameof(UserId))]
+        public User Author { get; set; }
+
         [Required]
         public int PostId { get; set; }
 
@@ -97,6 +100,11 @@ namespace SocialNetwork.Models
         public int Dislikes { get; set; }
 
         public int Replies { get; set; }
+
+        public string Username { get; set; }
+
+        [JsonPropertyName("user_verified")]
+        public string UserVerified { get; set; }
 
         [JsonPropertyName("my_vote")]
         public int MyVote { get; set; }

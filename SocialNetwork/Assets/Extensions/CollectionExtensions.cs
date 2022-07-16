@@ -36,5 +36,13 @@ namespace SocialNetwork.Assets.Extensions
                        Selected = selectedValue != null && item.GetPropertyValue(idPropertyName).Equals(selectedValue.ToString())
                    };
         }
+
+        public static string Join(this IEnumerable<string> items, string separatotr)
+        {
+            if (items.IsNullOrEmpty())
+                return "";
+
+            return string.Join(separatotr, items);
+        }
     }
 }

@@ -68,7 +68,7 @@ namespace SocialNetwork.Models
     public class PostCuOrder : ShouldPassUserId
     {
         public int Id { get; set; }
-        
+
         [Required]
         public string Text { get; set; }
 
@@ -124,6 +124,7 @@ namespace SocialNetwork.Models
 
     public class SinglePostDto : SearchPostDto
     {
+        [JsonPropertyName("post_author")]
         public SimpleUserDto Author { get; set; }
     }
 }

@@ -6,6 +6,7 @@ namespace SocialNetwork.Data.Repositories
     public interface IUnitOfWork : IDisposable
     {
         ApplicationDbContext GetContext();
+        IBlackListPatternRepository BlackListPatterns { get; }
         IBlockRepository Blocks { get; }
         ICommentRepository Comments { get; }
         ICommentReportRepository CommentReports { get; }
@@ -28,6 +29,7 @@ namespace SocialNetwork.Data.Repositories
         {
             _context = context;
 
+            BlackListPatterns = new BlackListPatternRepository(_context);
             Blocks = new BlockRepository(_context);
             Comments = new CommentRepository(_context);
             CommentReports = new CommentReportRepository(_context);
@@ -41,6 +43,7 @@ namespace SocialNetwork.Data.Repositories
             Users = new UserRepository(_context);
         }
 
+        public IBlackListPatternRepository BlackListPatterns { get; private set; }
         public IBlockRepository Blocks { get; private set; }
         public ICommentRepository Comments { get; private set; }
         public ICommentReportRepository CommentReports { get; private set; }
