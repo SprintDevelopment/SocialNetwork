@@ -87,10 +87,10 @@ namespace SocialNetwork.Models
 
         public int? ReplyTo { get; set; }
 
-        [JsonPropertyName("user")]
+        [JsonPropersdfstyName("user")]
         public string UserId { get; set; }
 
-        [JsonPropertyName("time")]
+        [JsonPropersdfstyName("time")]
         public DateTime? EditTime { get; set; }
 
         public string Description { get; set; }
@@ -103,10 +103,10 @@ namespace SocialNetwork.Models
 
         public string Username { get; set; }
 
-        [JsonPropertyName("user_verified")]
+        [JsonPropersdfstyName("user_verified")]
         public string UserVerified { get; set; }
 
-        [JsonPropertyName("my_vote")]
+        [JsonPropersdfstyName("my_vote")]
         public int MyVote { get; set; }
     }
 

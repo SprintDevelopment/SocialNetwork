@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace SocialNetwork.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("commentvotes")]
     public class CommentVoteController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -26,7 +27,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<CommentVote> Create(CommentVoteCuOrder CommentVoteCuOrder)
+        public async Task<IActionResult> Create(CommentVoteCuOrder CommentVoteCuOrder)
         {
             if (ModelState.IsValid)
             {
@@ -35,24 +36,74 @@ namespace SocialNetwork.Controllers
 
                 if (comment is not null)
                 {
-                    var preVote = _unitOfWork.CommentVotes.Find(pv => pv.CommentId == commentVote.CommentId && pv.UserId == commentVote.UserId).FirstOrDefault();
-                    if (preVote is not null)
-                    {
-                        _ = commentVote.IsDown ? comment.Dislikes-- : comment.Likes--;
-                        preVote.IsDown = commentVote.IsDown;
-                    }
-                    else
-                        _unitOfWork.CommentVotes.Add(commentVote);
+                    _unitOfWork.CommentVotes.Add(commentVote);
 
                     _ = commentVote.IsDown ? comment.Dislikes++ : comment.Likes++;
 
                     await _unitOfWork.CompleteAsync();
 
-                    return commentVote;
+                    return Ok(commentVote);
                 }
+
+                return NotFound(new ResponseDto { Result = false, Error = "comment not found." });
             }
 
-            return null;
+            return BadRequest();
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(CommentVoteCuOrder CommentVoteCuOrder)
+        {
+            if (ModelState.IsValid)
+            {
+                var comment = await _unitOfWork.Comments.GetAsync(CommentVoteCuOrder.CommentId);
+
+                if (comment is not null)
+                {
+                    var preVote = _unitOfWork.CommentVotes.Find(pv => pv.CommentId == CommentVoteCuOrder.CommentId && pv.UserId == User.Identity.Name).FirstOrDefault();
+                    if (preVote is not null)
+                    {
+                        _ = preVote.IsDown ? comment.Dislikes-- : comment.Likes--;
+                        preVote.IsDown = CommentVoteCuOrder.IsDown;
+
+                        _ = preVote.IsDown ? comment.Dislikes++ : comment.Likes++;
+
+                        await _unitOfWork.CompleteAsync();
+
+                        return Ok(preVote);
+                    }
+
+                    return NotFound(new ResponseDto { Result = false, Error = "comment vote not found." });
+                }
+
+                return NotFound(new ResponseDto { Result = false, Error = "comment not found." });
+            }
+
+            return BadRequest();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(CommentVoteCuOrder commentVoteCuOrder)
+        {
+            if (ModelState.IsValid)
+            {
+                var comment = await _unitOfWork.Posts.GetAsync(commentVoteCuOrder.CommentId);
+
+                var preVote = _unitOfWork.CommentVotes.Find(pv => pv.CommentId == commentVoteCuOrder.CommentId && pv.UserId == User.Identity.Name).FirstOrDefault();
+                if (preVote is not null)
+                {
+                    _ = preVote.IsDown ? comment.Dislikes-- : comment.Likes--;
+
+                    _unitOfWork.CommentVotes.Remove(preVote);
+                    await _unitOfWork.CompleteAsync();
+
+                    return Ok(preVote);
+                }
+
+                return NotFound(new ResponseDto { Result = false, Error = "comment vote not found." });
+            }
+
+            return BadRequest();
         }
     }
 }

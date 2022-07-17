@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using System;
@@ -13,7 +14,7 @@ namespace SocialNetwork.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("commentreports")]
     public class CommentReportController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -28,7 +29,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<CommentReport> Create(CommentReportCuOrder CommentReportCuOrder)
+        public async Task<IActionResult> Create(CommentReportCuOrder CommentReportCuOrder)
         {
             if (ModelState.IsValid)
             {
@@ -45,11 +46,13 @@ namespace SocialNetwork.Controllers
 
                     await _unitOfWork.CompleteAsync();
 
-                    return CommentReport;
+                    return Ok(CommentReport);
                 }
+
+                return NotFound(new ResponseDto { Result = false, Error = "comment not found." });
             }
 
-            return null;
+            return BadRequest();
         }
     }
 }

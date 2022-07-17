@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace SocialNetwork.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("postreports")]
     public class PostReportController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -26,7 +27,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<PostReport> Create(PostReportCuOrder postReportCuOrder)
+        public async Task<IActionResult> Create(PostReportCuOrder postReportCuOrder)
         {
             if (ModelState.IsValid)
             {
@@ -43,11 +44,13 @@ namespace SocialNetwork.Controllers
 
                     await _unitOfWork.CompleteAsync();
 
-                    return postReport;
+                    return Ok(postReport);
                 }
+
+                return NotFound(new ResponseDto { Result = false, Error = "post not found." });
             }
 
-            return null;
+            return BadRequest();
         }
     }
 }

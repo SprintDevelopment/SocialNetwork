@@ -17,7 +17,7 @@ namespace SocialNetwork.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("relationship")]
     public class RelationshipController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -46,6 +46,9 @@ namespace SocialNetwork.Controllers
         {
             if (!id.IsNullOrWhitespace())
             {
+                if (id == User.Identity.Name)
+                    return StatusCode(406, new ResponseDto { Result = false, Error = "can not follow yourself." });
+
                 var relationship = _mapper.Map<Relationship>(new RelationshipTemplate { FollowingId = id });
                 var followingUser = await _unitOfWork.Users.GetAsync(relationship.FollowingId);
 
@@ -57,6 +60,7 @@ namespace SocialNetwork.Controllers
 
                     return Ok(new ResponseDto { Result = true, Message = "relation created" });
                 }
+
                 return BadRequest(new ResponseDto { Result = false, Error = $"user with id = {id} not found" });
             }
 
@@ -78,7 +82,34 @@ namespace SocialNetwork.Controllers
 
                     return Ok(new ResponseDto { Result = true, Message = "relation removed"});
                 }
+
                 return BadRequest(new ResponseDto { Result = false, Error = "no relation found" });
+            }
+
+            return BadRequest(new ResponseDto { Result = false, Error = "not enough input data" });
+        }
+
+        [HttpPost("status/{id}")]
+        public async Task<IActionResult> Status(string id)
+        {
+            if (!id.IsNullOrWhitespace())
+            {
+                if (id == User.Identity.Name)
+                    return StatusCode(406, new ResponseDto { Result = false, Error = "can not follow yourself." });
+
+                var relationship = _mapper.Map<Relationship>(new RelationshipTemplate { FollowingId = id });
+                var followingUser = await _unitOfWork.Users.GetAsync(relationship.FollowingId);
+
+                if (followingUser is not null)
+                {
+                    var preRelationship = _unitOfWork.Relationships.Find(r => r.UserId == relationship.UserId && r.FollowingId == relationship.FollowingId).FirstOrDefault();
+                    if (preRelationship is null)
+                        _unitOfWork.Relationships.Add(relationship, true);
+
+                    return Ok(new ResponseDto { Result = true, Message = "relation created" });
+                }
+
+                return BadRequest(new ResponseDto { Result = false, Error = $"user with id = {id} not found" });
             }
 
             return BadRequest(new ResponseDto { Result = false, Error = "not enough input data" });

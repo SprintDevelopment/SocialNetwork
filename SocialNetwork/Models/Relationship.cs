@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -29,6 +30,12 @@ namespace SocialNetwork.Models
         public DateTime Time { get; set; }
 
         public SimpleUserDto FollowingUser { get; set; }
+    }
+
+    public class RelationshipStatusDto
+    {
+        [JsonProperty(PropertyName = "is_follower")]
+        public string FollowingId { get; set; }
     }
 
     // Note that this is a model only for mapping. FollowingId will be passed via query string.

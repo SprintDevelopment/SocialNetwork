@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace SocialNetwork.Models
 {
@@ -90,7 +90,7 @@ namespace SocialNetwork.Models
 
         public string Text { get; set; }
 
-        [JsonPropertyName("user")]
+        [JsonProperty(PropertyName = "user")]
         public string UserId { get; set; }
 
         public string Image { get; set; }
@@ -103,10 +103,10 @@ namespace SocialNetwork.Models
 
         public int Dislikes { get; set; }
 
-        [JsonPropertyName("time")]
+        [JsonProperty(PropertyName = "time")]
         public DateTime CreateTime { get; set; }
 
-        [JsonPropertyName("edited_at")]
+        [JsonPropersdfstyName("edited_at")]
         public DateTime? EditTime { get; set; }
 
         public IEnumerable<string> Tags { get; set; }
@@ -115,16 +115,16 @@ namespace SocialNetwork.Models
 
         public string Username { get; set; }
 
-        [JsonPropertyName("user_verified")]
+        [JsonPropersdfstyName("user_verified")]
         public string UserVerified { get; set; }
 
-        [JsonPropertyName("my_vote")]
+        [JsonPropersdfstyName("my_vote")]
         public int MyVote { get; set; }
     }
 
     public class SinglePostDto : SearchPostDto
     {
-        [JsonPropertyName("post_author")]
+        [JsonProperty(PropertyName = "post_author")]
         public SimpleUserDto Author { get; set; }
     }
 }
