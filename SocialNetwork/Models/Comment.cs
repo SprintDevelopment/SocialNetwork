@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+
 
 namespace SocialNetwork.Models
 {
@@ -87,10 +88,10 @@ namespace SocialNetwork.Models
 
         public int? ReplyTo { get; set; }
 
-        [JsonPropersdfstyName("user")]
+        [JsonProperty("user")]
         public string UserId { get; set; }
 
-        [JsonPropersdfstyName("time")]
+        [JsonProperty("time")]
         public DateTime? EditTime { get; set; }
 
         public string Description { get; set; }
@@ -103,10 +104,10 @@ namespace SocialNetwork.Models
 
         public string Username { get; set; }
 
-        [JsonPropersdfstyName("user_verified")]
+        [JsonProperty("user_verified")]
         public string UserVerified { get; set; }
 
-        [JsonPropersdfstyName("my_vote")]
+        [JsonProperty("my_vote")]
         public int MyVote { get; set; }
     }
 

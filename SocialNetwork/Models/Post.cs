@@ -90,7 +90,7 @@ namespace SocialNetwork.Models
 
         public string Text { get; set; }
 
-        [JsonProperty(PropertyName = "user")]
+        [JsonProperty("user")]
         public string UserId { get; set; }
 
         public string Image { get; set; }
@@ -103,10 +103,10 @@ namespace SocialNetwork.Models
 
         public int Dislikes { get; set; }
 
-        [JsonProperty(PropertyName = "time")]
+        [JsonProperty("time")]
         public DateTime CreateTime { get; set; }
 
-        [JsonPropersdfstyName("edited_at")]
+        [JsonProperty("edited_at")]
         public DateTime? EditTime { get; set; }
 
         public IEnumerable<string> Tags { get; set; }
@@ -115,16 +115,16 @@ namespace SocialNetwork.Models
 
         public string Username { get; set; }
 
-        [JsonPropersdfstyName("user_verified")]
+        [JsonProperty("user_verified")]
         public string UserVerified { get; set; }
 
-        [JsonPropersdfstyName("my_vote")]
+        [JsonProperty("my_vote")]
         public int MyVote { get; set; }
     }
 
     public class SinglePostDto : SearchPostDto
     {
-        [JsonProperty(PropertyName = "post_author")]
+        [JsonProperty("post_author")]
         public SimpleUserDto Author { get; set; }
     }
 }

@@ -32,7 +32,8 @@ namespace SocialNetwork.Assets
             CreateMap<User, SimpleUserDto>();
 
             CreateMap<UserCreateOrder, User>()
-                .ForMember(model => model.CreateTime, opt => { opt.PreCondition(order => order.Id.IsNullOrWhitespace()); opt.MapFrom(order => DateTime.Now); });
+                .ForMember(model => model.Id, opt => opt.MapFrom(order => Guid.NewGuid().ToString()))
+                .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now));
 
 
             // UserReport
@@ -41,12 +42,23 @@ namespace SocialNetwork.Assets
                 .AfterMap<SetUserId>(); ;
 
             // Block
-            CreateMap<BlockCuOrder, Block>()
-                .ForMember(model => model.Time, opt => opt.MapFrom(order => DateTime.Now))
-                .AfterMap<SetUserId>(); ;
+            CreateMap<Block, BlockedDto>()
+                .ForMember(dto => dto.UserId, opt => opt.MapFrom(model => model.BlockedId))
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.BlockedUser is not null); opt.MapFrom(model => model.BlockedUser.Username); })
+                .ForMember(dto => dto.Verified, opt => { opt.PreCondition(model => model.BlockedUser is not null); opt.MapFrom(model => model.BlockedUser.Verified); });
 
             // Relationship
             CreateMap<Relationship, RelationshipDto>();
+
+            CreateMap<Relationship, FollowingDto>()
+                .ForMember(dto => dto.UserId, opt => opt.MapFrom(model => model.FollowingId))
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.FollowingUser is not null); opt.MapFrom(model => model.FollowingUser.Username); })
+                .ForMember(dto => dto.Verified, opt => { opt.PreCondition(model => model.FollowingUser is not null); opt.MapFrom(model => model.FollowingUser.Verified); });
+
+            CreateMap<Relationship, FollowerDto>()
+                .ForMember(dto => dto.UserId, opt => opt.MapFrom(model => model.UserId))
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.FollowerUser is not null); opt.MapFrom(model => model.FollowerUser.Username); })
+                .ForMember(dto => dto.Verified, opt => { opt.PreCondition(model => model.FollowerUser is not null); opt.MapFrom(model => model.FollowerUser.Verified); });
 
             CreateMap<RelationshipTemplate, Relationship>()
                 .ForMember(model => model.Time, opt => opt.MapFrom(order => DateTime.Now))

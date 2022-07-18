@@ -2,18 +2,18 @@
 
 namespace SocialNetwork.Migrations
 {
-    public partial class addfkcomment : Migration
+    public partial class i : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_UserId",
-                table: "Comments",
+                name: "IX_Relationships_UserId",
+                table: "Relationships",
                 column: "UserId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Comments_Users_UserId",
-                table: "Comments",
+                name: "FK_Relationships_Users_UserId",
+                table: "Relationships",
                 column: "UserId",
                 principalTable: "Users",
                 principalColumn: "Id",
@@ -23,12 +23,12 @@ namespace SocialNetwork.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Comments_Users_UserId",
-                table: "Comments");
+                name: "FK_Relationships_Users_UserId",
+                table: "Relationships");
 
             migrationBuilder.DropIndex(
-                name: "IX_Comments_UserId",
-                table: "Comments");
+                name: "IX_Relationships_UserId",
+                table: "Relationships");
         }
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SocialNetwork.Assets.Dtos;
+using SocialNetwork.Assets.Extensions;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using System;
@@ -14,7 +16,7 @@ namespace SocialNetwork.Controllers
 {
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("relationship")]
     public class BlockController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -28,58 +30,57 @@ namespace SocialNetwork.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public IEnumerable<BlockDto> Get()
+        [HttpPost("block/{id}")]
+        public async Task<IActionResult> Block(string id)
         {
-            return _unitOfWork.Blocks
-                        .Find(r => r.UserId == User.Identity.Name)
-                        .Include(r => r.BlockedUser)
-                        .Select(r => _mapper.Map<BlockDto>(r))
-                        .AsEnumerable();
-        }
-
-        [HttpPost("block")]
-        public async Task<Block> Block(BlockCuOrder blockCuOrder)
-        {
-            if (ModelState.IsValid)
+            if (!id.IsNullOrWhitespace())
             {
-                var block = _mapper.Map<Block>(blockCuOrder);
-                var blockedUser = await _unitOfWork.Users.GetAsync(blockCuOrder.BlockedId);
+                if (id == User.Identity.Name)
+                    return StatusCode(406, new ResponseDto { Result = false, Error = "can not block yourself." });
+
+                var block = _mapper.Map<Block>(id);
+                var blockedUser = await _unitOfWork.Users.GetAsync(id);
 
                 if (blockedUser is not null)
                 {
-                    var preBlock = _unitOfWork.Blocks.Find(r => r.UserId == block.UserId && r.BlockedId == blockCuOrder.BlockedId).FirstOrDefault();
+                    var preBlock = _unitOfWork.Blocks.Find(r => r.UserId == block.UserId && r.BlockedId == id).FirstOrDefault();
                     if (preBlock is null)
                         _unitOfWork.Blocks.Add(block, true);
 
-                    return block;
+                    return Ok(new ResponseDto { Result = true, Message = "user blocked." });
                 }
+
+                return BadRequest(new ResponseDto { Result = false, Error = $"user with id = {id} not found." });
             }
 
-            return null;
+            return BadRequest(new ResponseDto { Result = false, Error = "not enough input data." });
         }
 
-        [HttpPost("unblock")]
-        public async Task<Block> Unblock(BlockCuOrder blockCuOrder)
+        [HttpPost("unblock/{id}")]
+        public async Task<IActionResult> Unblock(string id)
         {
-            if (ModelState.IsValid)
+            if (!id.IsNullOrWhitespace())
             {
-                var block = _mapper.Map<Block>(blockCuOrder);
-                var blockedUser = await _unitOfWork.Users.GetAsync(blockCuOrder.BlockedId);
+                var preBlock = _unitOfWork.Blocks.Find(r => r.UserId == User.Identity.Name && r.BlockedId == id).FirstOrDefault();
 
-                if (blockedUser is not null)
+                if (preBlock is not null)
                 {
-                    var preBlock = _unitOfWork.Blocks.Find(r => r.UserId == block.UserId && r.BlockedId == blockCuOrder.BlockedId).FirstOrDefault();
-                    if (preBlock is null)
-                    {
-                        _unitOfWork.Blocks.Remove(block);
-                        await _unitOfWork.CompleteAsync();
-                        return block;
-                    }
+                    _unitOfWork.Blocks.Remove(preBlock);
+                    await _unitOfWork.CompleteAsync();
+
+                    return Ok(new ResponseDto { Result = true, Message = "user unblocked." });
                 }
+
+                return BadRequest(new ResponseDto { Result = false, Error = "no block found." });
             }
 
-            return null;
+            return BadRequest(new ResponseDto { Result = false, Error = "not enough input data." });
+        }
+
+        [HttpGet("blocklist")]
+        public IActionResult GetUserBlockList()
+        {
+            return Ok(_unitOfWork.Blocks.Find(f => f.UserId == User.Identity.Name).Include(r => r.BlockedUser).Select(r => _mapper.Map<FollowingDto>(r)).AsEnumerable());
         }
     }
 }

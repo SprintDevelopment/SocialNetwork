@@ -12,10 +12,13 @@ namespace SocialNetwork.Models
     {
         [Key]
         public long Id { get; set; }
-        
+
         [Required]
         public DateTime Time { get; set; }
-        
+
+        [ForeignKey(nameof(UserId))]
+        public User FollowerUser { get; set; }
+
         [Required]
         public string FollowingId { get; set; }
 
@@ -34,9 +37,42 @@ namespace SocialNetwork.Models
 
     public class RelationshipStatusDto
     {
-        [JsonProperty(PropertyName = "is_follower")]
-        public string FollowingId { get; set; }
+        [JsonProperty("is_follower")]
+        public bool IsFollower { get; set; }
+
+        [JsonProperty("is_following")]
+        public bool IsFollowing { get; set; }
     }
+
+    public class RelationshipInfoDto
+    {
+        [JsonProperty("follower")]
+        public int Follower { get; set; }
+
+        [JsonProperty("following")]
+        public int Following { get; set; }
+
+        [JsonProperty("user_verified")]
+        public bool Verified { get; set; }
+    }
+
+    public class FollowerFollowingBlockedDto
+    {
+        public DateTime Time { get; set; }
+
+        [JsonProperty("id")]
+        public string UserId { get; set; }
+
+        public string Username { get; set; }
+
+        public bool Verified { get; set; }
+    }
+
+    public class FollowerDto : FollowerFollowingBlockedDto { }
+
+    public class FollowingDto : FollowerFollowingBlockedDto { }
+
+    public class BlockedDto : FollowerFollowingBlockedDto { }
 
     // Note that this is a model only for mapping. FollowingId will be passed via query string.
     public class RelationshipTemplate : ShouldPassUserId

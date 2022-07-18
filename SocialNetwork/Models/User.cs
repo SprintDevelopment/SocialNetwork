@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+
 
 namespace SocialNetwork.Models
 {
@@ -42,9 +43,6 @@ namespace SocialNetwork.Models
     public class UserCreateOrder
     {
         [Required]
-        public string Id { get; set; }
-
-        [Required]
         public string Username { get; set; }
 
         [Required]
@@ -72,10 +70,10 @@ namespace SocialNetwork.Models
 
         public string Username { get; set; }
 
-        [JsonPropersdfstyName("created_at")]
+        [JsonProperty("created_at")]
         public DateTime CreatedTime { get; set; }
 
-        [JsonPropersdfstyName("blocked_until")]
+        [JsonProperty("blocked_until")]
         public DateTime? BlockedUntil { get; set; }
 
         public bool Reported { get; set; }

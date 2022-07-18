@@ -350,6 +350,8 @@ namespace SocialNetwork.Migrations
 
                     b.HasIndex("FollowingId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Relationships");
                 });
 
@@ -507,6 +509,14 @@ namespace SocialNetwork.Migrations
                         .HasForeignKey("FollowingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("SocialNetwork.Models.User", "FollowerUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FollowerUser");
 
                     b.Navigation("FollowingUser");
                 });

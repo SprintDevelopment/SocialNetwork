@@ -72,13 +72,14 @@ namespace SocialNetwork.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (_unitOfWork.Users.Find(u => u.Id == userCuOrder.Id).Any())
+                var user = _mapper.Map<User>(userCuOrder);
+
+                if (_unitOfWork.Users.Find(u => u.Id == user.Id).Any())
                     return BadRequest(new UserError { Username = "user with this id already exists." });
 
-                if (_unitOfWork.Users.Find(u => u.Username == userCuOrder.Username).Any())
+                if (_unitOfWork.Users.Find(u => u.Username == user.Username).Any())
                     return BadRequest(new UserError { Username = "user with this username already exists." });
 
-                var user = _mapper.Map<User>(userCuOrder);
                 _userService.TokenizeUser(user, false);
                 _unitOfWork.Users.Add(user, true);
 

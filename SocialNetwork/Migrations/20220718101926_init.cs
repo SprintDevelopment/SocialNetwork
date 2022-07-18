@@ -9,6 +9,20 @@ namespace SocialNetwork.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "BlackListPatterns",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Pattern = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlackListPatterns", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CommentReports",
                 columns: table => new
                 {
@@ -65,7 +79,7 @@ namespace SocialNetwork.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     Username = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     BlockedUntil = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     Reported = table.Column<bool>(type: "boolean", nullable: false),
                     Verified = table.Column<bool>(type: "boolean", nullable: false),
@@ -187,6 +201,12 @@ namespace SocialNetwork.Migrations
                         principalTable: "Posts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Comments_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -264,6 +284,11 @@ namespace SocialNetwork.Migrations
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comments_UserId",
+                table: "Comments",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CommentVotes_CommentId",
                 table: "CommentVotes",
                 column: "CommentId");
@@ -291,6 +316,9 @@ namespace SocialNetwork.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "BlackListPatterns");
+
             migrationBuilder.DropTable(
                 name: "Blocks");
 
