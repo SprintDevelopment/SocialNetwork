@@ -30,6 +30,7 @@ namespace SocialNetwork.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Get(string user, string tag, DateTime? date, int offset, int limit)
         {
@@ -49,6 +50,7 @@ namespace SocialNetwork.Controllers
                         .AsEnumerable());
         }
 
+        [AllowAnonymous]
         [HttpGet("latests")]
         public IActionResult Latests(int offset, int limit)
         {
@@ -78,6 +80,7 @@ namespace SocialNetwork.Controllers
                         .AsEnumerable());
         }
 
+        [AllowAnonymous]
         [HttpGet("{post_id}")]
         public IActionResult Get(int post_id)
         {

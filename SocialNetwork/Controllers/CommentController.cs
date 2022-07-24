@@ -29,6 +29,7 @@ namespace SocialNetwork.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Get(int post, int offset, int limit)
         {
