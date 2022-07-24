@@ -35,18 +35,12 @@ namespace SocialNetwork.Models
 
         [Required(AllowEmptyStrings = true)]
         public string Token { get; internal set; }
-
-        [Required(AllowEmptyStrings = true)]
-        public string Password { get; internal set; }
     }
 
     public class UserCreateOrder
     {
         [Required]
         public string Username { get; set; }
-
-        [Required]
-        public string Password { get; set; }
     }
 
     public class UserUpdateUsernameOrder

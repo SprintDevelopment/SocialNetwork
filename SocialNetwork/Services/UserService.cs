@@ -14,7 +14,7 @@ namespace SocialNetwork.Services
 {
     public interface IUserService
     {
-        void TokenizeUser(User user, bool clearPassword = true);
+        void TokenizeUser(User user);
     }
 
     public class UserService : IUserService
@@ -26,7 +26,7 @@ namespace SocialNetwork.Services
             _appSettings = appSettings.Value;
         }
 
-        public void TokenizeUser(User user, bool clearPassword = true)
+        public void TokenizeUser(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.SecretKey);
@@ -42,8 +42,6 @@ namespace SocialNetwork.Services
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             user.Token = tokenHandler.WriteToken(token);
-            if (clearPassword)
-                user.Password = null;
         }
     }
 }

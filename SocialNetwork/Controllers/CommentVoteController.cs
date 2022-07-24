@@ -27,7 +27,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CommentVoteCuOrder CommentVoteCuOrder)
+        public async Task<IActionResult> Create([FromForm]CommentVoteCuOrder CommentVoteCuOrder)
         {
             if (ModelState.IsValid)
             {
@@ -52,7 +52,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(CommentVoteCuOrder CommentVoteCuOrder)
+        public async Task<IActionResult> Update([FromForm]CommentVoteCuOrder CommentVoteCuOrder)
         {
             if (ModelState.IsValid)
             {

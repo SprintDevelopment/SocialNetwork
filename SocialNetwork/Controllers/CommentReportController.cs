@@ -29,7 +29,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CommentReportCuOrder CommentReportCuOrder)
+        public async Task<IActionResult> Create([FromForm]CommentReportCuOrder CommentReportCuOrder)
         {
             if (ModelState.IsValid)
             {

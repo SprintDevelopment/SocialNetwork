@@ -29,7 +29,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(BlackListPattern blackListPattern)
+        public IActionResult Create([FromForm]BlackListPattern blackListPattern)
         {
             if (ModelState.IsValid)
             {

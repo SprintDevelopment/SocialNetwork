@@ -96,7 +96,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(PostCuOrder postCuOrder)
+        public async Task<IActionResult> Create([FromForm]PostCuOrder postCuOrder)
         {
             if (ModelState.IsValid)
             {

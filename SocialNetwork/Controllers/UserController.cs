@@ -34,11 +34,11 @@ namespace SocialNetwork.Controllers
 
         [AllowAnonymous]
         [HttpPost("Login")]
-        public IActionResult Login(UserLoginOrder userLoginOrder)
+        public IActionResult Login([FromForm]UserLoginOrder userLoginOrder)
         {
             if (ModelState.IsValid)
             {
-                var user = _unitOfWork.Users.Find(u => u.Username == userLoginOrder.Username && u.Password == userLoginOrder.Password).FirstOrDefault();
+                var user = _unitOfWork.Users.Find(u => u.Username == userLoginOrder.Username).FirstOrDefault();
 
                 if (user != null)
                 {
@@ -52,6 +52,7 @@ namespace SocialNetwork.Controllers
             return BadRequest(new ResponseDto { Result = false, Error = "not enough input data" });
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public IActionResult Get(string id)
         {
@@ -68,7 +69,7 @@ namespace SocialNetwork.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Create(UserCreateOrder userCuOrder)
+        public IActionResult Create([FromForm]UserCreateOrder userCuOrder)
         {
             if (ModelState.IsValid)
             {
@@ -80,7 +81,7 @@ namespace SocialNetwork.Controllers
                 if (_unitOfWork.Users.Find(u => u.Username == user.Username).Any())
                     return BadRequest(new UserError { Username = "user with this username already exists." });
 
-                _userService.TokenizeUser(user, false);
+                _userService.TokenizeUser(user);
                 _unitOfWork.Users.Add(user, true);
 
                 return Ok(user);
