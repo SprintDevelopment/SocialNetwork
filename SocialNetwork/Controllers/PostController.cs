@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,19 +22,17 @@ namespace SocialNetwork.Controllers
     public class PostController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<PostController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public PostController(IMapper mapper, ILogger<PostController> logger, IUnitOfWork unitOfWork)
+        public PostController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            _logger = logger;
         }
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Get(string user, string tag, DateTime? date, int offset, int limit)
+        public IActionResult Get(string user, string tag, string date, int offset, int limit)
         {
             IQueryable<Post> query = _unitOfWork.Posts
                                     .Find()
@@ -41,13 +41,13 @@ namespace SocialNetwork.Controllers
                                     .Include(p => p.PostVotes.Where(pv => pv.UserId == User.Identity.Name));
 
             query = user.IsNullOrWhitespace() ? query : query.Where(p => p.UserId == user); // user
-            query = date is null ? query : query.Where(p => p.CreateTime.Date == date.Value.Date); // date
+            query = date.IsNullOrWhitespace() || !DateTime.TryParseExact(date, "ddd MMM dd HH:mm:ss 'GMT'K yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var outDate) ? query : query.Where(p => p.CreateTime.Date == outDate.Date); // date
             query = tag.IsNullOrWhitespace() ? query : query.Where(p => p.PostTags.Any(pt => pt.TagID == tag)); // tag
 
             return Ok(query.OrderBy(p => p.CreateTime)
-                        .Paginate(offset, limit)
                         .Select(p => _mapper.Map<SearchPostDto>(p))
-                        .AsEnumerable());
+                        .AsEnumerable()
+                        .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 
         [AllowAnonymous]
@@ -61,9 +61,9 @@ namespace SocialNetwork.Controllers
                                     .Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
-                        .Paginate(offset, limit)
                         .Select(p => _mapper.Map<SearchPostDto>(p))
-                        .AsEnumerable());
+                        .AsEnumerable()
+                        .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 
         [HttpGet("mine")]
@@ -75,9 +75,9 @@ namespace SocialNetwork.Controllers
                                     .Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
-                        .Paginate(offset, limit)
                         .Select(p => _mapper.Map<SearchPostDto>(p))
-                        .AsEnumerable());
+                        .AsEnumerable()
+                        .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 
         [AllowAnonymous]

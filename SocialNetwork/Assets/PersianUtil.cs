@@ -4,9 +4,9 @@ using System.Globalization;
 
 namespace SocialNetwork.Assets
 {
-    public class PersianUtil
+    public static class PersianUtil
     {
-        public static string PersianDateTime(DateTime dateToConvert, bool isShortFormat = true)
+        public static string ToPersianDateTime(this DateTime dateToConvert)
         {
             if (dateToConvert == DateTime.MinValue)
                 dateToConvert = DateTime.Now;
@@ -17,15 +17,7 @@ namespace SocialNetwork.Assets
             int month = persianCalendar.GetMonth(dateToConvert);
             int year = persianCalendar.GetYear(dateToConvert);
 
-            if (isShortFormat)
-                return $"{year:0000}/{month:00}/{day:00}";
-            //return $"{year:0000}/{month:00}/{day:00} - {dateToConvert.Hour:00}:{dateToConvert.Minute:00}";
-
-            var persinaDayOfWeek = PersianDayOfWeek(dateToConvert);
-            var persianMonth = (PersianMonth)month;
-
-            //return $"{persinaDayOfWeek.ToString()}، {day} {persianMonth.ToString()} {year} - {dateToConvert.Hour:00}:{dateToConvert.Minute:00}";
-            return $"{day} {persianMonth.ToString()} {year}";
+            return $"{year:0000}-{month:00}-{day:00}T" + dateToConvert.ToString("O").Split('T')[1];
         }
 
         public static PersianDayOfWeek PersianDayOfWeek(DateTime dateToConvert)

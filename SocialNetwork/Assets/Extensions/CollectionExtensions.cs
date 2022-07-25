@@ -36,6 +36,15 @@ namespace SocialNetwork.Assets.Extensions
                        Selected = selectedValue != null && item.GetPropertyValue(idPropertyName).Equals(selectedValue.ToString())
                    };
         }
+        public static PaginationDto<T> Paginate<T>(this IEnumerable<T> query, string url, int offset = 0, int limit = 0)
+        {
+            return new PaginationDto<T> 
+            {
+                Results = query.Skip(offset).Take(limit > 0 ? limit : int.MaxValue),
+                Previous = offset == 0 || limit == 0? "" : url.ChangeParameter(new KeyValue { Key = "offset", Value = Math.Max(0, offset - limit).ToString() }),
+                Next = offset + limit >= query.Count() || limit == 0 ? "" : url.ChangeParameter(new KeyValue { Key = "offset", Value = (offset + limit).ToString() }),
+            };
+        }
 
         public static string Join(this IEnumerable<string> items, string separatotr)
         {

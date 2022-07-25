@@ -16,14 +16,12 @@ namespace SocialNetwork.Controllers
     public class PostReportController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<PostReportController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public PostReportController(IMapper mapper, ILogger<PostReportController> logger, IUnitOfWork unitOfWork)
+        public PostReportController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            _logger = logger;
         }
 
         [HttpPost]

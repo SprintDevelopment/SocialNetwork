@@ -20,14 +20,12 @@ namespace SocialNetwork.Controllers
     public class BlockController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<BlockController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BlockController(IMapper mapper, ILogger<BlockController> logger, IUnitOfWork unitOfWork)
+        public BlockController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            _logger = logger;
         }
 
         [HttpPost("block/{id}")]

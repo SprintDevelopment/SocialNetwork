@@ -29,10 +29,12 @@ namespace SocialNetwork.Assets
         public AutoMapping()
         {
             // User
-            CreateMap<User, SimpleUserDto>();
+            CreateMap<User, SimpleUserDto>()
+                .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
+                .ForMember(dto => dto.BlockedUntil, opt => opt.MapFrom(model => model.BlockedUntil.HasValue ? model.BlockedUntil.Value.ToPersianDateTime() : ""))
+;
 
             CreateMap<UserCreateOrder, User>()
-                .ForMember(model => model.Id, opt => opt.MapFrom(order => Guid.NewGuid().ToString()))
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now));
 
 
@@ -45,19 +47,20 @@ namespace SocialNetwork.Assets
             CreateMap<Block, BlockedDto>()
                 .ForMember(dto => dto.UserId, opt => opt.MapFrom(model => model.BlockedId))
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.BlockedUser is not null); opt.MapFrom(model => model.BlockedUser.Username); })
+                .ForMember(dto => dto.Time, opt => opt.MapFrom(model => model.Time.ToPersianDateTime()))
                 .ForMember(dto => dto.Verified, opt => { opt.PreCondition(model => model.BlockedUser is not null); opt.MapFrom(model => model.BlockedUser.Verified); });
 
             // Relationship
-            CreateMap<Relationship, RelationshipDto>();
-
             CreateMap<Relationship, FollowingDto>()
                 .ForMember(dto => dto.UserId, opt => opt.MapFrom(model => model.FollowingId))
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.FollowingUser is not null); opt.MapFrom(model => model.FollowingUser.Username); })
+                .ForMember(dto => dto.Time, opt => opt.MapFrom(model => model.Time.ToPersianDateTime()))
                 .ForMember(dto => dto.Verified, opt => { opt.PreCondition(model => model.FollowingUser is not null); opt.MapFrom(model => model.FollowingUser.Verified); });
 
             CreateMap<Relationship, FollowerDto>()
                 .ForMember(dto => dto.UserId, opt => opt.MapFrom(model => model.UserId))
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.FollowerUser is not null); opt.MapFrom(model => model.FollowerUser.Username); })
+                .ForMember(dto => dto.Time, opt => opt.MapFrom(model => model.Time.ToPersianDateTime()))
                 .ForMember(dto => dto.Verified, opt => { opt.PreCondition(model => model.FollowerUser is not null); opt.MapFrom(model => model.FollowerUser.Verified); });
 
             CreateMap<RelationshipTemplate, Relationship>()
@@ -69,12 +72,16 @@ namespace SocialNetwork.Assets
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
+                .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
+                .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
 
             CreateMap<Post, SinglePostDto>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
+                .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
+                .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
 
             CreateMap<PostCuOrder, Post>()
@@ -97,9 +104,13 @@ namespace SocialNetwork.Assets
             CreateMap<Comment, SearchCommentDto>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
+                .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
+                .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.CommentVotes.Any() ? (model.CommentVotes.First().IsDown ? -1 : 1) : 0));
 
             CreateMap<Comment, SingleCommentDto>()
+                .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
+                .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.CommentVotes.Any() ? (model.CommentVotes.First().IsDown ? -1 : 1) : 0));
 
             CreateMap<CommentCuOrder, Comment>()

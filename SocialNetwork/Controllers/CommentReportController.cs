@@ -18,14 +18,12 @@ namespace SocialNetwork.Controllers
     public class CommentReportController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<CommentReportController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CommentReportController(IMapper mapper, ILogger<CommentReportController> logger, IUnitOfWork unitOfWork)
+        public CommentReportController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            _logger = logger;
         }
 
         [HttpPost]

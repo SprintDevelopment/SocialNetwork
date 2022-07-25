@@ -78,7 +78,8 @@ namespace SocialNetwork.Models
     {
         public int Id { get; set; }
 
-        public DateTime CreateTime { get; set; }
+        [JsonProperty("time")]
+        public string CreateTime { get; set; }
 
         public string Text { get; set; }
 
@@ -91,8 +92,8 @@ namespace SocialNetwork.Models
         [JsonProperty("user")]
         public string UserId { get; set; }
 
-        [JsonProperty("time")]
-        public DateTime? EditTime { get; set; }
+        [JsonProperty("edited_time")]
+        public string EditTime { get; set; }
 
         public string Description { get; set; }
 

@@ -104,10 +104,10 @@ namespace SocialNetwork.Models
         public int Dislikes { get; set; }
 
         [JsonProperty("time")]
-        public DateTime CreateTime { get; set; }
+        public string CreateTime { get; set; }
 
         [JsonProperty("edited_at")]
-        public DateTime? EditTime { get; set; }
+        public string EditTime { get; set; }
 
         public IEnumerable<string> Tags { get; set; }
 

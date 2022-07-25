@@ -40,6 +40,8 @@ namespace SocialNetwork.Models
     public class UserCreateOrder
     {
         [Required]
+        public string Id { get; set; }
+        [Required]
         public string Username { get; set; }
     }
 
@@ -65,7 +67,7 @@ namespace SocialNetwork.Models
         public string Username { get; set; }
 
         [JsonProperty("created_at")]
-        public DateTime CreatedTime { get; set; }
+        public DateTime CreateTime { get; set; }
 
         [JsonProperty("blocked_until")]
         public DateTime? BlockedUntil { get; set; }
@@ -78,6 +80,6 @@ namespace SocialNetwork.Models
     public class UserError
     {
         public string ID { get; set; }
-        public string Username { get; set; }
+        public string[] Username { get; set; }
     }
 }

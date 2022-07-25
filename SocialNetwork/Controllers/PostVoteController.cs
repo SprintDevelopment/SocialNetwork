@@ -16,14 +16,12 @@ namespace SocialNetwork.Controllers
     public class PostVoteController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<PostVoteController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public PostVoteController(IMapper mapper, ILogger<PostVoteController> logger, IUnitOfWork unitOfWork)
+        public PostVoteController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            _logger = logger;
         }
 
         [HttpPost]

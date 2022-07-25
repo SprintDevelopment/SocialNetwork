@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -19,14 +21,12 @@ namespace SocialNetwork.Controllers
     public class CommentController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<CommentController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CommentController(IMapper mapper, ILogger<CommentController> logger, IUnitOfWork unitOfWork)
+        public CommentController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            _logger = logger;
         }
 
         [AllowAnonymous]
@@ -36,11 +36,11 @@ namespace SocialNetwork.Controllers
             IQueryable<Comment> query = _unitOfWork.Comments.Find().Include(c => c.Author).Include(c => c.CommentVotes.Where(cv => cv.UserId == User.Identity.Name));
 
             query = post != 0 ? query : query.Where(c => c.PostId == post); // post
-
+            
             return Ok(query.OrderBy(c => c.CreateTime)
-                        .Paginate(offset, limit)
                         .Select(c => _mapper.Map<SearchCommentDto>(c))
-                        .AsEnumerable());
+                        .AsEnumerable()
+                        .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 
         [HttpPost]

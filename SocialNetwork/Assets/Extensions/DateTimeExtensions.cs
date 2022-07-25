@@ -32,11 +32,5 @@ namespace SocialNetwork.Assets.Extensions
             var years = DateTime.Now.Subtract(date).Days / 365;
             return $"{years} سال پیش";
         }
-
-        public static string ToShortDate(this DateTime date)
-        {
-            var persianDate = PersianUtil.PersianDateTime(date);
-            return persianDate.Substring(5);
-        }
     }
 }

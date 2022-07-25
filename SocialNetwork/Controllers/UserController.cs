@@ -21,20 +21,18 @@ namespace SocialNetwork.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
-        private readonly ILogger<UserController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserController(IMapper mapper, IUserService userService, ILogger<UserController> logger, IUnitOfWork unitOfWork)
+        public UserController(IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _userService = userService;
             _unitOfWork = unitOfWork;
-            _logger = logger;
         }
 
         [AllowAnonymous]
         [HttpPost("Login")]
-        public IActionResult Login([FromForm]UserLoginOrder userLoginOrder)
+        public IActionResult Login([FromForm] UserLoginOrder userLoginOrder)
         {
             if (ModelState.IsValid)
             {
@@ -69,17 +67,17 @@ namespace SocialNetwork.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Create([FromForm]UserCreateOrder userCuOrder)
+        public IActionResult Create([FromForm] UserCreateOrder userCuOrder)
         {
             if (ModelState.IsValid)
             {
                 var user = _mapper.Map<User>(userCuOrder);
 
                 if (_unitOfWork.Users.Find(u => u.Id == user.Id).Any())
-                    return BadRequest(new UserError { Username = "user with this id already exists." });
+                    return BadRequest(new UserError { ID = "user with this id already exists." });
 
                 if (_unitOfWork.Users.Find(u => u.Username == user.Username).Any())
-                    return BadRequest(new UserError { Username = "user with this username already exists." });
+                    return BadRequest(new UserError { Username = new string[] { "user with this username already exists." } });
 
                 _userService.TokenizeUser(user);
                 _unitOfWork.Users.Add(user, true);
@@ -98,10 +96,10 @@ namespace SocialNetwork.Controllers
                 var user = _unitOfWork.Users.Find(u => u.Id == User.Identity.Name).FirstOrDefault();
 
                 if (userUpdateUsernameOrder.Username == user.Username)
-                    return BadRequest(new UserError { Username = "username is the same as previous." });
+                    return BadRequest(new UserError { Username = new string[] { "username is the same as previous." } });
 
                 if (_unitOfWork.Users.Find(u => u.Username == userUpdateUsernameOrder.Username).Any())
-                    return BadRequest(new UserError { Username = "user with this username already exists." });
+                    return BadRequest(new UserError { Username = new string[] { "user with this username already exists." } });
 
                 user.Username = userUpdateUsernameOrder.Username;
                 await _unitOfWork.CompleteAsync();

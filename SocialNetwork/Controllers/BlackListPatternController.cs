@@ -18,14 +18,12 @@ namespace SocialNetwork.Controllers
     public class BlackListPatternController : Controller
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<BlackListPatternController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BlackListPatternController(IMapper mapper, ILogger<BlackListPatternController> logger, IUnitOfWork unitOfWork)
+        public BlackListPatternController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            _logger = logger;
         }
 
         [HttpPost]

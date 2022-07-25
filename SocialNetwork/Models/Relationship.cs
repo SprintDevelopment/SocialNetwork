@@ -26,15 +26,6 @@ namespace SocialNetwork.Models
         public User FollowingUser { get; set; }
     }
 
-    public class RelationshipDto
-    {
-        public long Id { get; set; }
-
-        public DateTime Time { get; set; }
-
-        public SimpleUserDto FollowingUser { get; set; }
-    }
-
     public class RelationshipStatusDto
     {
         [JsonProperty("is_follower")]

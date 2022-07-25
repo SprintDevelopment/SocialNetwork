@@ -21,14 +21,12 @@ namespace SocialNetwork.Controllers
     public class RelationshipController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<RelationshipController> _logger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public RelationshipController(IMapper mapper, ILogger<RelationshipController> logger, IUnitOfWork unitOfWork)
+        public RelationshipController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
-            _logger = logger;
         }
 
         [HttpPost("follow/{id}")]
