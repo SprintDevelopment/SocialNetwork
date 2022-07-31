@@ -8,9 +8,11 @@ using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Assets.Extensions;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
+using SocialNetwork.Services;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,11 +25,13 @@ namespace SocialNetwork.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileService _fileService;
 
-        public PostController(IMapper mapper, IUnitOfWork unitOfWork)
+        public PostController(IMapper mapper, IUnitOfWork unitOfWork, IFileService fileService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _fileService = fileService;
         }
 
         [AllowAnonymous]
@@ -101,10 +105,16 @@ namespace SocialNetwork.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm]PostCuOrder postCuOrder)
         {
+            var files = HttpContext.Request.Form.Files;
+            if (files.Count > 0)
+                postCuOrder.Image = await _fileService.UploadAsync(files[0], "post-images", "");
+
             if (ModelState.IsValid)
             {
                 if (postCuOrder.Tags?.Count() > 2)
                     return BadRequest(new ErrorResponse { Error = "too many tags" });
+                else if (postCuOrder.Tags?.Count() == 2 && !postCuOrder.Tags.HasAnyItemIn("تحلیل", "آموزش"))
+                    return BadRequest(new ErrorResponse { Error = "invalid tags" });
 
                 // UPLOAD IMAGE . . .
 

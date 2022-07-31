@@ -53,5 +53,10 @@ namespace SocialNetwork.Assets.Extensions
 
             return string.Join(separatotr, items);
         }
+
+        public static bool HasAnyItemIn<T>(this IEnumerable<T> items, params T[] list)
+        {
+            return items.Any(item => list.Contains(item));
+        }
     }
 }
