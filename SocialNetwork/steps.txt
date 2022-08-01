@@ -22,3 +22,5 @@ server pass: uW3mF2bngU6740^#
 main server ip: 212.33.201.176
 main server pass: TGcryp2P@ss4User
 
+anydesk:717899656
+

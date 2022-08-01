@@ -32,7 +32,7 @@ namespace SocialNetwork.Models
         public bool AutoReport { get; set; }
 
         [Required(AllowEmptyStrings = true)]
-        public string Description { get; set; }
+        public string Description { get; set; } = "";
 
         [Required]
         public bool AdminWhitelist { get; set; }
@@ -73,10 +73,7 @@ namespace SocialNetwork.Models
         public string Text { get; set; }
 
         [Required(AllowEmptyStrings = true)]
-        public string Image { get; set; }
-
-        [Required(AllowEmptyStrings = true)]
-        public string Description { get; set; }
+        public string Image { get; set; } = "";
 
         [Required]
         public string Symbol { get; set; }

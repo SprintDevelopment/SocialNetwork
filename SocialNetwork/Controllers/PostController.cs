@@ -35,14 +35,17 @@ namespace SocialNetwork.Controllers
         }
 
         [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet]
         public IActionResult Get(string user, string tag, string date, int offset, int limit)
         {
             IQueryable<Post> query = _unitOfWork.Posts
                                     .Find()
                                     .Include(p => p.Author)
-                                    .Include(p => p.PostTags)
-                                    .Include(p => p.PostVotes.Where(pv => pv.UserId == User.Identity.Name));
+                                    .Include(p => p.PostTags);
+
+            if (User.Identity.IsAuthenticated)
+                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.Identity.Name));
 
             query = user.IsNullOrWhitespace() ? query : query.Where(p => p.UserId == user); // user
             query = date.IsNullOrWhitespace() || !DateTime.TryParseExact(date, "ddd MMM dd HH:mm:ss 'GMT'K yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var outDate) ? query : query.Where(p => p.CreateTime.Date == outDate.Date); // date
@@ -55,14 +58,17 @@ namespace SocialNetwork.Controllers
         }
 
         [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("latests")]
         public IActionResult Latests(int offset, int limit)
         {
             IQueryable<Post> query = _unitOfWork.Posts
                                     .Find()
                                     .Include(p => p.Author)
-                                    .Include(p => p.PostTags)
-                                    .Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
+                                    .Include(p => p.PostTags);
+
+            if (User.Identity.IsAuthenticated)
+                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.Identity.Name));
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
                         .Select(p => _mapper.Map<SearchPostDto>(p))
@@ -85,14 +91,19 @@ namespace SocialNetwork.Controllers
         }
 
         [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet("{post_id}")]
         public IActionResult Get(int post_id)
         {
-            var singlePost = _unitOfWork.Posts
+            IQueryable<Post> query = _unitOfWork.Posts
                     .Find(p => p.Id == post_id)
                     .Include(p => p.Author)
-                    .Include(p => p.PostTags)
-                    .Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name))
+                    .Include(p => p.PostTags);
+
+            if (User.Identity.IsAuthenticated)
+                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.Identity.Name));
+
+            var singlePost = query
                     .Select(p => _mapper.Map<SinglePostDto>(p))
                     .FirstOrDefault();
 
@@ -102,8 +113,15 @@ namespace SocialNetwork.Controllers
             return Ok(singlePost);
         }
 
+        [HttpGet("Image/{fileName}")]
+        public IActionResult GetImage(string fileName)
+        {
+            var image = _fileService.DownloadAsync(Path.Combine("post-images", fileName));
+            return File(image, "image/jpeg");
+        }
+
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm]PostCuOrder postCuOrder)
+        public async Task<IActionResult> Create([FromForm] PostCuOrder postCuOrder)
         {
             var files = HttpContext.Request.Form.Files;
             if (files.Count > 0)
@@ -149,14 +167,18 @@ namespace SocialNetwork.Controllers
         // posts/{post_id} -> { post_id }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody]PostCuOrder postCuOrder)
+        public async Task<IActionResult> Update(int id, [FromBody] PostCuOrder postCuOrder)
         {
+            var files = HttpContext.Request.Form.Files;
+            if (files.Count > 0)
+                postCuOrder.Image = await _fileService.UploadAsync(files[0], "post-images", "");
+
             if (ModelState.IsValid)
             {
                 var user = _unitOfWork.Users.Find(u => u.Id == User.Identity.Name).FirstOrDefault();
                 var post = _unitOfWork.Posts.Find(p => p.Id == id).FirstOrDefault();
 
-                if(post is not null)
+                if (post is not null)
                 {
                     if (postCuOrder.Tags?.Count() > 2)
                         return BadRequest(new ErrorResponse { Error = "too many tags" });

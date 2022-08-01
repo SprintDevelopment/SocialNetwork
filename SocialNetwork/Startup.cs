@@ -14,6 +14,7 @@ using SocialNetwork.Services;
 using Microsoft.AspNetCore.Http;
 using System;
 using Newtonsoft.Json;
+using Microsoft.IdentityModel.Logging;
 
 namespace SocialNetwork
 {
@@ -35,6 +36,7 @@ namespace SocialNetwork
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IFileService, FileService>();
             services.AddAutoMapper(typeof(Startup));
             services.AddControllers(options => options.ReturnHttpNotAcceptable = true).AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
@@ -46,8 +48,8 @@ namespace SocialNetwork
                 x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["AppSettings:SecretKey"])),
+                    ValidateIssuerSigningKey = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:SecretKey"])),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                 };
@@ -72,6 +74,7 @@ namespace SocialNetwork
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SocialNetwork v1"));
             }
+            IdentityModelEventSource.ShowPII = true;
 
             app.UseHttpsRedirection();
 

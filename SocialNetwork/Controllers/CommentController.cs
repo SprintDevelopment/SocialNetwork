@@ -30,10 +30,16 @@ namespace SocialNetwork.Controllers
         }
 
         [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet]
         public IActionResult Get(int post, int offset, int limit)
         {
-            IQueryable<Comment> query = _unitOfWork.Comments.Find().Include(c => c.Author).Include(c => c.CommentVotes.Where(cv => cv.UserId == User.Identity.Name));
+            IQueryable<Comment> query = _unitOfWork.Comments
+                    .Find()
+                    .Include(c => c.Author);
+            
+            if (User.Identity.IsAuthenticated)
+                query = query.Include(p => p.CommentVotes.Where(pv => pv.UserId == User.Identity.Name));
 
             query = post != 0 ? query : query.Where(c => c.PostId == post); // post
             
