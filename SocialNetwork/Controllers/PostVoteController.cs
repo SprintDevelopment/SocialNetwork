@@ -58,7 +58,7 @@ namespace SocialNetwork.Controllers
 
                 if (post is not null)
                 {
-                    var preVote = _unitOfWork.PostVotes.Find(pv => pv.PostId == postVoteCuOrder.PostId && pv.UserId == User.Identity.Name).FirstOrDefault();
+                    var preVote = _unitOfWork.PostVotes.Find(pv => pv.PostId == postVoteCuOrder.PostId && pv.UserId == User.FindFirst("userId").Value).FirstOrDefault();
                     if (preVote is not null)
                     {
                         _ = preVote.IsDown ? post.Dislikes-- : post.Likes--;
@@ -86,7 +86,7 @@ namespace SocialNetwork.Controllers
             {
                 var post = await _unitOfWork.Posts.GetAsync(postVoteCuOrder.PostId);
 
-                var preVote = _unitOfWork.PostVotes.Find(pv => pv.PostId == postVoteCuOrder.PostId && pv.UserId == User.Identity.Name).FirstOrDefault();
+                var preVote = _unitOfWork.PostVotes.Find(pv => pv.PostId == postVoteCuOrder.PostId && pv.UserId == User.FindFirst("userId").Value).FirstOrDefault();
                 if (preVote is not null)
                 {
                     _ = preVote.IsDown ? post.Dislikes-- : post.Likes--;

@@ -58,7 +58,7 @@ namespace SocialNetwork.Controllers
 
                 if (comment is not null)
                 {
-                    var preVote = _unitOfWork.CommentVotes.Find(pv => pv.CommentId == CommentVoteCuOrder.CommentId && pv.UserId == User.Identity.Name).FirstOrDefault();
+                    var preVote = _unitOfWork.CommentVotes.Find(pv => pv.CommentId == CommentVoteCuOrder.CommentId && pv.UserId == User.FindFirst("userId").Value).FirstOrDefault();
                     if (preVote is not null)
                     {
                         _ = preVote.IsDown ? comment.Dislikes-- : comment.Likes--;
@@ -87,7 +87,7 @@ namespace SocialNetwork.Controllers
             {
                 var comment = await _unitOfWork.Posts.GetAsync(commentVoteCuOrder.CommentId);
 
-                var preVote = _unitOfWork.CommentVotes.Find(pv => pv.CommentId == commentVoteCuOrder.CommentId && pv.UserId == User.Identity.Name).FirstOrDefault();
+                var preVote = _unitOfWork.CommentVotes.Find(pv => pv.CommentId == commentVoteCuOrder.CommentId && pv.UserId == User.FindFirst("userId").Value).FirstOrDefault();
                 if (preVote is not null)
                 {
                     _ = preVote.IsDown ? comment.Dislikes-- : comment.Likes--;

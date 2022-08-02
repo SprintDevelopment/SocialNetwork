@@ -24,7 +24,7 @@ namespace SocialNetwork.Models
         public User Author { get; set; }
 
         [Required(AllowEmptyStrings = true)]
-        public string Image { get; set; }
+        public string Image { get; set; } = "";
 
         public DateTime? EditTime { get; set; }
         
@@ -71,12 +71,6 @@ namespace SocialNetwork.Models
 
         [Required]
         public string Text { get; set; }
-
-        [Required(AllowEmptyStrings = true)]
-        public string Image { get; set; } = "";
-
-        [Required]
-        public string Symbol { get; set; }
 
         public virtual IEnumerable<string> Tags { get; set; }
     }

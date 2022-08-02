@@ -19,7 +19,7 @@ namespace SocialNetwork
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog((hostContext, services, configuration) => { configuration.WriteTo.Console(); })
+                .UseSerilog((hostContext, configuration) => { configuration.WriteTo.Console(); })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseUrls("http://0.0.0.0:5981");

@@ -34,7 +34,7 @@ namespace SocialNetwork.Controllers
         {
             if (!id.IsNullOrWhitespace())
             {
-                if (id == User.Identity.Name)
+                if (id == User.FindFirst("userId").Value)
                     return StatusCode(406, new ResponseDto { Result = false, Error = "can not follow yourself." });
 
                 var relationship = _mapper.Map<Relationship>(new RelationshipTemplate { FollowingId = id });
@@ -60,7 +60,7 @@ namespace SocialNetwork.Controllers
         {
             if (!id.IsNullOrWhitespace())
             {
-                var preRelationship = _unitOfWork.Relationships.Find(r => r.UserId == User.Identity.Name && r.FollowingId == id).FirstOrDefault();
+                var preRelationship = _unitOfWork.Relationships.Find(r => r.UserId == User.FindFirst("userId").Value && r.FollowingId == id).FirstOrDefault();
 
                 if (preRelationship is not null)
                 {
@@ -84,8 +84,8 @@ namespace SocialNetwork.Controllers
             {
                 return Ok(new RelationshipStatusDto
                 {
-                    IsFollowing = _unitOfWork.Relationships.Find(r => r.UserId == User.Identity.Name && r.FollowingId == id).Any(),
-                    IsFollower = _unitOfWork.Relationships.Find(r => r.UserId == id && r.FollowingId == User.Identity.Name).Any()
+                    IsFollowing = _unitOfWork.Relationships.Find(r => r.UserId == User.FindFirst("userId").Value && r.FollowingId == id).Any(),
+                    IsFollower = _unitOfWork.Relationships.Find(r => r.UserId == id && r.FollowingId == User.FindFirst("userId").Value).Any()
                 });
             }
 

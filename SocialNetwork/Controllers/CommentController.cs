@@ -39,7 +39,7 @@ namespace SocialNetwork.Controllers
                     .Include(c => c.Author);
             
             if (User.Identity.IsAuthenticated)
-                query = query.Include(p => p.CommentVotes.Where(pv => pv.UserId == User.Identity.Name));
+                query = query.Include(p => p.CommentVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
 
             query = post != 0 ? query : query.Where(c => c.PostId == post); // post
             
@@ -58,7 +58,7 @@ namespace SocialNetwork.Controllers
 
                 if (post is not null)
                 {
-                    var user = _unitOfWork.Users.Find(u => u.Id == User.Identity.Name).FirstOrDefault();
+                    var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
                     var comment = _mapper.Map<Comment>(commentCuOrder);
 
                     if (!user.Verified && !user.WhiteList)
@@ -97,7 +97,7 @@ namespace SocialNetwork.Controllers
 
                 if (comment is not null)
                 {
-                    var user = _unitOfWork.Users.Find(u => u.Id == User.Identity.Name).FirstOrDefault();
+                    var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
                     _mapper.Map(commentCuOrder, comment);
 
                     if (!user.Verified && !user.WhiteList)

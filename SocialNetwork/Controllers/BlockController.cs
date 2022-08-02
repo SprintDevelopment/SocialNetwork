@@ -33,7 +33,7 @@ namespace SocialNetwork.Controllers
         {
             if (!id.IsNullOrWhitespace())
             {
-                if (id == User.Identity.Name)
+                if (id == User.FindFirst("userId").Value)
                     return StatusCode(406, new ResponseDto { Result = false, Error = "can not block yourself." });
 
                 var block = _mapper.Map<Block>(id);
@@ -59,7 +59,7 @@ namespace SocialNetwork.Controllers
         {
             if (!id.IsNullOrWhitespace())
             {
-                var preBlock = _unitOfWork.Blocks.Find(r => r.UserId == User.Identity.Name && r.BlockedId == id).FirstOrDefault();
+                var preBlock = _unitOfWork.Blocks.Find(r => r.UserId == User.FindFirst("userId").Value && r.BlockedId == id).FirstOrDefault();
 
                 if (preBlock is not null)
                 {
@@ -78,7 +78,7 @@ namespace SocialNetwork.Controllers
         [HttpGet("blocklist")]
         public IActionResult GetUserBlockList()
         {
-            return Ok(_unitOfWork.Blocks.Find(f => f.UserId == User.Identity.Name).Include(r => r.BlockedUser).Select(r => _mapper.Map<FollowingDto>(r)).AsEnumerable());
+            return Ok(_unitOfWork.Blocks.Find(f => f.UserId == User.FindFirst("userId").Value).Include(r => r.BlockedUser).Select(r => _mapper.Map<FollowingDto>(r)).AsEnumerable());
         }
     }
 }

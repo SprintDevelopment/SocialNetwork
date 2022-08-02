@@ -58,5 +58,10 @@ namespace SocialNetwork.Assets.Extensions
         {
             return items.Any(item => list.Contains(item));
         }
+
+        public static bool IsIn<T>(this T item, params T[] list)
+        {
+            return list.Any(i => i.Equals(item));
+        }
     }
 }

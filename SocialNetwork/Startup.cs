@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Http;
 using System;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Logging;
+using Serilog;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SocialNetwork
 {
@@ -23,6 +25,12 @@ namespace SocialNetwork
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            Log.Logger = new LoggerConfiguration()
+                     .ReadFrom.Configuration(configuration)
+                     .CreateLogger();
+
+            Log.Information("lsdhfkashdfjkhasjdkfhasjkfh");
         }
 
         public IConfiguration Configuration { get; }
@@ -48,6 +56,7 @@ namespace SocialNetwork
                 x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
+                    RequireExpirationTime = false,
                     ValidateIssuerSigningKey = false,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:SecretKey"])),
                     ValidateIssuer = false,
@@ -58,6 +67,11 @@ namespace SocialNetwork
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SocialNetwork", Version = "v1" });
+            });
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
             });
         }
 

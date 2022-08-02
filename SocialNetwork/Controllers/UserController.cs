@@ -93,7 +93,7 @@ namespace SocialNetwork.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = _unitOfWork.Users.Find(u => u.Id == User.Identity.Name).FirstOrDefault();
+                var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
 
                 if (userUpdateUsernameOrder.Username == user.Username)
                     return BadRequest(new UserError { Username = new string[] { "username is the same as previous." } });

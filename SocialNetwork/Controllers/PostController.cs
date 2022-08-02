@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Serilog;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Assets.Extensions;
 using SocialNetwork.Data.Repositories;
@@ -45,7 +47,7 @@ namespace SocialNetwork.Controllers
                                     .Include(p => p.PostTags);
 
             if (User.Identity.IsAuthenticated)
-                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.Identity.Name));
+                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
 
             query = user.IsNullOrWhitespace() ? query : query.Where(p => p.UserId == user); // user
             query = date.IsNullOrWhitespace() || !DateTime.TryParseExact(date, "ddd MMM dd HH:mm:ss 'GMT'K yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var outDate) ? query : query.Where(p => p.CreateTime.Date == outDate.Date); // date
@@ -68,7 +70,7 @@ namespace SocialNetwork.Controllers
                                     .Include(p => p.PostTags);
 
             if (User.Identity.IsAuthenticated)
-                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.Identity.Name));
+                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
                         .Select(p => _mapper.Map<SearchPostDto>(p))
@@ -80,9 +82,9 @@ namespace SocialNetwork.Controllers
         public IActionResult MyPosts(int offset, int limit)
         {
             IQueryable<Post> query = _unitOfWork.Posts
-                                    .Find(p => p.UserId == User.Identity.Name)
+                                    .Find(p => p.UserId == User.FindFirst("userId").Value)
                                     .Include(p => p.PostTags)
-                                    .Include(p => p.PostVotes.Where(pp => pp.UserId == User.Identity.Name));
+                                    .Include(p => p.PostVotes.Where(pp => pp.UserId == User.FindFirst("userId").Value));
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
                         .Select(p => _mapper.Map<SearchPostDto>(p))
@@ -101,7 +103,7 @@ namespace SocialNetwork.Controllers
                     .Include(p => p.PostTags);
 
             if (User.Identity.IsAuthenticated)
-                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.Identity.Name));
+                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
 
             var singlePost = query
                     .Select(p => _mapper.Map<SinglePostDto>(p))
@@ -123,10 +125,7 @@ namespace SocialNetwork.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] PostCuOrder postCuOrder)
         {
-            var files = HttpContext.Request.Form.Files;
-            if (files.Count > 0)
-                postCuOrder.Image = await _fileService.UploadAsync(files[0], "post-images", "");
-
+            Log.Warning(JsonConvert.SerializeObject(postCuOrder));
             if (ModelState.IsValid)
             {
                 if (postCuOrder.Tags?.Count() > 2)
@@ -136,9 +135,16 @@ namespace SocialNetwork.Controllers
 
                 // UPLOAD IMAGE . . .
 
-                var user = _unitOfWork.Users.Find(u => u.Id == User.Identity.Name).FirstOrDefault();
+                var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
                 var post = _mapper.Map<Post>(postCuOrder);
 
+                var files = HttpContext.Request.Form.Files;
+                if (files.Count > 0)
+                    post.Image = await _fileService.UploadAsync(files[0], "post-images", "");
+
+                post.Symbol = postCuOrder.Tags.FirstOrDefault(t => !t.IsIn("تحلیل", "آموزش")) ?? "TEMP";
+
+                Log.Warning(JsonConvert.SerializeObject(post));
                 if (!user.Verified && !user.WhiteList)
                 {
                     var validateReulst = _unitOfWork.BlackListPatterns.ValidateMessage(postCuOrder.Text);
@@ -157,7 +163,7 @@ namespace SocialNetwork.Controllers
 
                 await _unitOfWork.CompleteAsync();
 
-                return Ok(post);
+                return Ok(_mapper.Map<SinglePostDto>(post));
             }
 
             return BadRequest();
@@ -169,14 +175,15 @@ namespace SocialNetwork.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] PostCuOrder postCuOrder)
         {
-            var files = HttpContext.Request.Form.Files;
-            if (files.Count > 0)
-                postCuOrder.Image = await _fileService.UploadAsync(files[0], "post-images", "");
-
             if (ModelState.IsValid)
             {
-                var user = _unitOfWork.Users.Find(u => u.Id == User.Identity.Name).FirstOrDefault();
+                var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
                 var post = _unitOfWork.Posts.Find(p => p.Id == id).FirstOrDefault();
+                
+                var files = HttpContext.Request.Form.Files;
+                if (files.Count > 0)
+                    post.Image = await _fileService.UploadAsync(files[0], "post-images", post.Image);
+
 
                 if (post is not null)
                 {

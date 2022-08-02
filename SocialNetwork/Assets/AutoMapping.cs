@@ -20,7 +20,7 @@ namespace SocialNetwork.Assets
 
         public void Process(ShouldPassUserId source, HasUserId destination, ResolutionContext context)
         {
-            destination.UserId = _httpContextAccessor.HttpContext.User.Identity.Name;
+            destination.UserId = _httpContextAccessor.HttpContext.User.FindFirst("userId").Value;
         }
     }
 
