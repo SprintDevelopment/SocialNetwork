@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,20 +16,22 @@ namespace SocialNetwork.Models
 
         [Required]
         public bool IsDown { get; set; }
-        
+
         [Required]
         public int PostId { get; set; }
 
-        [JsonIgnore]        
+        [JsonIgnore]
         [ForeignKey(nameof(PostId))]
         public Post Post { get; set; }
     }
 
     public class PostVoteCuOrder : ShouldPassUserId
     {
+        [BindProperty(Name = "is_down")]
         [Required]
         public bool IsDown { get; set; }
 
+        [BindProperty(Name = "post")]
         [Required]
         public int PostId { get; set; }
     }

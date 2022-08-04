@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -36,9 +37,9 @@ namespace SocialNetwork.Models
         
         [Required]
         public bool AutoReport { get; set; }
-        
+
         [Required(AllowEmptyStrings = true)]
-        public string Description { get; set; }
+        public string Description { get; set; } = "";
         
         [Required]
         public bool AdminWhitelist { get; set; }
@@ -64,13 +65,12 @@ namespace SocialNetwork.Models
 
         [Required]
         public string Text { get; set; }
-
-        [Required(AllowEmptyStrings = true)]
-        public string Description { get; set; }
         
+        [BindProperty(Name = "post")]
         [Required]
         public int PostId { get; set; }
-
+        
+        [BindProperty(Name = "reply_to")]
         public int? ReplyTo { get; set; }
     }
 
@@ -85,8 +85,10 @@ namespace SocialNetwork.Models
 
         public bool Reported { get; set; }
 
+        [JsonProperty("post")]
         public int PostId { get; set; }
 
+        [JsonProperty("reply_to")]
         public int? ReplyTo { get; set; }
 
         [JsonProperty("user")]

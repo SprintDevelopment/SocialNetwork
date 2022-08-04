@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Serilog;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Assets.Extensions;
 using SocialNetwork.Data.Repositories;
@@ -41,7 +43,7 @@ namespace SocialNetwork.Controllers
             if (User.Identity.IsAuthenticated)
                 query = query.Include(p => p.CommentVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
 
-            query = post != 0 ? query : query.Where(c => c.PostId == post); // post
+            query = post == 0 ? query : query.Where(c => c.PostId == post); // post
             
             return Ok(query.OrderBy(c => c.CreateTime)
                         .Select(c => _mapper.Map<SearchCommentDto>(c))
@@ -52,6 +54,7 @@ namespace SocialNetwork.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm]CommentCuOrder commentCuOrder)
         {
+            Log.Warning(JsonConvert.SerializeObject(commentCuOrder));
             if (ModelState.IsValid)
             {
                 var post = _unitOfWork.Posts.Find(p => p.Id == commentCuOrder.PostId).FirstOrDefault();
@@ -79,7 +82,7 @@ namespace SocialNetwork.Controllers
 
                     await _unitOfWork.CompleteAsync();
 
-                    return Ok(comment);
+                    return Ok(_mapper.Map<SingleCommentDto>(comment));
                 }
 
                 return BadRequest(new ResponseDto { Result = false, Error = "no post found with this postID." });

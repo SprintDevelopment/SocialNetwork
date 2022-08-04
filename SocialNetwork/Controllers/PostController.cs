@@ -39,8 +39,9 @@ namespace SocialNetwork.Controllers
         [AllowAnonymous]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet]
-        public IActionResult Get(string user, string tag, string date, int offset, int limit)
+        public IActionResult Get(string user, string tags, int offset, int limit)
         {
+            Log.Error("Get Posts -----------------------------" + tags);
             IQueryable<Post> query = _unitOfWork.Posts
                                     .Find()
                                     .Include(p => p.Author)
@@ -50,10 +51,9 @@ namespace SocialNetwork.Controllers
                 query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
 
             query = user.IsNullOrWhitespace() ? query : query.Where(p => p.UserId == user); // user
-            query = date.IsNullOrWhitespace() || !DateTime.TryParseExact(date, "ddd MMM dd HH:mm:ss 'GMT'K yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var outDate) ? query : query.Where(p => p.CreateTime.Date == outDate.Date); // date
-            query = tag.IsNullOrWhitespace() ? query : query.Where(p => p.PostTags.Any(pt => pt.TagID == tag)); // tag
+            query = tags.IsNullOrWhitespace() ? query : query.Where(p => p.PostTags.Any(pt => pt.TagID == tags)); // tag
 
-            return Ok(query.OrderBy(p => p.CreateTime)
+            return Ok(query.OrderByDescending(p => p.CreateTime)
                         .Select(p => _mapper.Map<SearchPostDto>(p))
                         .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
@@ -128,6 +128,12 @@ namespace SocialNetwork.Controllers
             Log.Warning(JsonConvert.SerializeObject(postCuOrder));
             if (ModelState.IsValid)
             {
+                if (postCuOrder.Tags.IsNullOrEmpty())
+                {
+                    Log.Warning("no tags found in create post");
+                    return BadRequest(new ErrorResponse { Error = "no tags" });
+                }
+
                 if (postCuOrder.Tags?.Count() > 2)
                     return BadRequest(new ErrorResponse { Error = "too many tags" });
                 else if (postCuOrder.Tags?.Count() == 2 && !postCuOrder.Tags.HasAnyItemIn("تحلیل", "آموزش"))
@@ -179,7 +185,7 @@ namespace SocialNetwork.Controllers
             {
                 var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
                 var post = _unitOfWork.Posts.Find(p => p.Id == id).FirstOrDefault();
-                
+
                 var files = HttpContext.Request.Form.Files;
                 if (files.Count > 0)
                     post.Image = await _fileService.UploadAsync(files[0], "post-images", post.Image);

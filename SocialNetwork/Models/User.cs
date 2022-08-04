@@ -67,10 +67,10 @@ namespace SocialNetwork.Models
         public string Username { get; set; }
 
         [JsonProperty("created_at")]
-        public DateTime CreateTime { get; set; }
+        public string CreateTime { get; set; }
 
         [JsonProperty("blocked_until")]
-        public DateTime? BlockedUntil { get; set; }
+        public string BlockedUntil { get; set; }
 
         public bool Reported { get; set; }
 

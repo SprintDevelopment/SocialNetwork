@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Serilog;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
@@ -27,6 +29,8 @@ namespace SocialNetwork.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm]PostVoteCuOrder postVoteCuOrder)
         {
+            var r = HttpContext.Request;
+            Log.Warning(JsonConvert.SerializeObject(postVoteCuOrder));
             if (ModelState.IsValid)
             {
                 var postVote = _mapper.Map<PostVote>(postVoteCuOrder);

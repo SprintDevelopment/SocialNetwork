@@ -24,6 +24,23 @@ namespace SocialNetwork.Assets
         }
     }
 
+    public class SetImageUrl : IMappingAction<Post, SearchPostDto>
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public SetImageUrl(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        }
+
+        public void Process(Post source, SearchPostDto destination, ResolutionContext context)
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+
+            destination.Image = source.Image.IsNullOrWhitespace() ? "" :  $"{request.Scheme}://{request.Host}{request.PathBase}/post-images/{source.Image}";
+        }
+    }
+
     public class AutoMapping : Profile
     {
         public AutoMapping()
@@ -74,7 +91,8 @@ namespace SocialNetwork.Assets
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
                 .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
-                .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
+                .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0))
+                .AfterMap<SetImageUrl>();
 
             CreateMap<Post, SinglePostDto>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
