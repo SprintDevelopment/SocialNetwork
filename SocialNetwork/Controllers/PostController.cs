@@ -41,7 +41,6 @@ namespace SocialNetwork.Controllers
         [HttpGet]
         public IActionResult Get(string user, string tags, int offset, int limit)
         {
-            Log.Error("Get Posts -----------------------------" + tags);
             IQueryable<Post> query = _unitOfWork.Posts
                                     .Find()
                                     .Include(p => p.Author)

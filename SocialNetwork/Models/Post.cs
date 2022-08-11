@@ -63,6 +63,11 @@ namespace SocialNetwork.Models
         
         [Required]
         public bool NotificationSent { get; set; }
+
+        public int? AnalysisId { get; set; }
+
+        [ForeignKey(nameof(AnalysisId))]
+        public Analysis Analysis { get; set; }
     }
 
     public class PostCuOrder : ShouldPassUserId

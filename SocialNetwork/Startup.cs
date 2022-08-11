@@ -25,12 +25,6 @@ namespace SocialNetwork
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
-            Log.Logger = new LoggerConfiguration()
-                     .ReadFrom.Configuration(configuration)
-                     .CreateLogger();
-
-            Log.Information("lsdhfkashdfjkhasjdkfhasjkfh");
         }
 
         public IConfiguration Configuration { get; }
@@ -38,8 +32,13 @@ namespace SocialNetwork
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(Configuration)
+                .CreateLogger();
+
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
+                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
             services.AddTransient<IUnitOfWork, UnitOfWork>();
@@ -99,6 +98,8 @@ namespace SocialNetwork
 
             app.UseStaticFiles();
             
+            app.UseSerilogRequestLogging();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
