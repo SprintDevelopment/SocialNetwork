@@ -13,6 +13,7 @@ namespace SocialNetwork.Data
         {
         }
 
+        public DbSet<Analysis> Analyses { get; set; }
         public DbSet<BlackListPattern> BlackListPatterns { get; set; }
         public DbSet<Block> Blocks { get; set; }
         public DbSet<Comment> Comments { get; set; }

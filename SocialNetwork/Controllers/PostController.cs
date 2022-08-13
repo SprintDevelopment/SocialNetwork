@@ -122,7 +122,7 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] PostCuOrder postCuOrder)
+        public async Task<IActionResult> Create([FromForm] PostWithAnalysisCuOrder postCuOrder)
         {
             Log.Warning(JsonConvert.SerializeObject(postCuOrder));
             if (ModelState.IsValid)
@@ -142,6 +142,31 @@ namespace SocialNetwork.Controllers
 
                 var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
                 var post = _mapper.Map<Post>(postCuOrder);
+
+                if(!postCuOrder.Time.IsNullOrEmpty())
+                {
+                    var analysis = new Analysis()
+                    {
+                        Drawing = postCuOrder.Drawing,
+                        Template = postCuOrder.Template
+                    };
+
+                    if(long.TryParse(postCuOrder.EnterPrice, out long longValue))
+                        analysis.Time = longValue;
+
+                    if(double.TryParse(postCuOrder.EnterPrice, out double doubleValue))
+                        analysis.EnterPrice = doubleValue;
+                    if(double.TryParse(postCuOrder.StopGain, out doubleValue))
+                        analysis.StopGain = doubleValue;
+                    if(double.TryParse(postCuOrder.StopLoss, out doubleValue))
+                        analysis.StopLoss = doubleValue;
+
+                    if (bool.TryParse(postCuOrder.IsShort, out bool boolValue))
+                        analysis.IsShort = boolValue;
+
+                    if (!0d.IsIn(analysis.EnterPrice, analysis.StopGain, analysis.StopLoss) || )
+                        Log.Warning("No enough data for signal");
+                }
 
                 var files = HttpContext.Request.Form.Files;
                 if (files.Count > 0)
