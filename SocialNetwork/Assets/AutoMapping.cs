@@ -107,6 +107,44 @@ namespace SocialNetwork.Assets
                 .ForMember(model => model.EditTime, opt => { opt.PreCondition(order => order.Id != 0); opt.MapFrom(order => DateTime.Now); })
                 .ForMember(model => model.PostTags, opt => opt.MapFrom(order => order.Tags.Select(t => new PostTag { TagID = t })))
                 .AfterMap<SetUserId>();
+            
+            // Analysis
+            CreateMap<Post, SearchPostWithAnalysisDto>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
+                .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
+                .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
+                .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
+                .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0))
+                .ForMember(dto => dto.Time, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.Time); })
+                .ForMember(dto => dto.IsShort, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.IsShort); })
+                .ForMember(dto => dto.EnterPrice, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.EnterPrice); })
+                .ForMember(dto => dto.StopGain, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.StopGain); })
+                .ForMember(dto => dto.StopLoss, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.StopLoss); })
+                .ForMember(dto => dto.Drawing, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.Drawing); })
+                .ForMember(dto => dto.Template, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.Template); })
+                .ForMember(dto => dto.ReachedGain, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.ReachedGain); })
+                .ForMember(dto => dto.ReachedLoss, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.ReachedLoss); })
+                .ForMember(dto => dto.ReachedDate, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.ReachedDate); })
+                .AfterMap<SetImageUrl>();
+
+            CreateMap<Post, SinglePostWithAnalysisDto>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
+                .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
+                .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
+                .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
+                .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0))
+                .ForMember(dto => dto.Time, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.Time); })
+                .ForMember(dto => dto.IsShort, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.IsShort); })
+                .ForMember(dto => dto.EnterPrice, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.EnterPrice); })
+                .ForMember(dto => dto.StopGain, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.StopGain); })
+                .ForMember(dto => dto.StopLoss, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.StopLoss); })
+                .ForMember(dto => dto.Drawing, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.Drawing); })
+                .ForMember(dto => dto.Template, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.Template); })
+                .ForMember(dto => dto.ReachedGain, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.ReachedGain); })
+                .ForMember(dto => dto.ReachedLoss, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.ReachedLoss); })
+                .ForMember(dto => dto.ReachedDate, opt => { opt.PreCondition(model => model.Analysis is not null); opt.MapFrom(model => model.Analysis.ReachedDate); });
 
             // PostVote
             CreateMap<PostVoteCuOrder, PostVote>()

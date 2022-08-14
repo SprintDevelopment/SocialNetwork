@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -36,29 +37,37 @@ namespace SocialNetwork.Models
 
     public class PostWithAnalysisCuOrder : PostCuOrder
     {
-        [JsonProperty("a")]
+        [BindProperty(Name = "a")]
         public string Time { get; set; }
 
-        [JsonProperty("b")]
+        [BindProperty(Name = "b")]
         public string IsShort { get; set; }
 
-        [JsonProperty("c")]
+        [BindProperty(Name = "c")]
         public string EnterPrice { get; set; }
 
-        [JsonProperty("d")]
+        [BindProperty(Name = "d")]
         public string StopGain { get; set; }
 
-        [JsonProperty("e")]
+        [BindProperty(Name = "e")]
         public string StopLoss { get; set; }
 
-        [JsonProperty("f")]
+        [BindProperty(Name = "f")]
         public string Drawing { get; set; }
 
-        [JsonProperty("g")]
+        [BindProperty(Name = "g")]
         public string Template { get; set; }
+
+        public bool ReachedGain { get; set; }
+
+        public bool ReachedLoss { get; set; }
+
+        [Required]
+        [Range(0, long.MaxValue)]
+        public long ReachedDate { get; set; }
     }
 
-    public class PostWithAnalysisDto : SearchPostDto
+    public class SearchPostWithAnalysisDto : SearchPostDto
     {
         [JsonProperty("a")]
         public long Time { get; set; }
@@ -80,5 +89,30 @@ namespace SocialNetwork.Models
 
         [JsonProperty("g")]
         public string Template { get; set; }
+
+        public bool ReachedGain { get; set; }
+
+        public bool ReachedLoss { get; set; }
+
+        [Required]
+        [Range(0, long.MaxValue)]
+        public long ReachedDate { get; set; }
+    }
+
+    public class SinglePostWithAnalysisDto : SearchPostWithAnalysisDto
+    {
+        [JsonProperty("post_author")]
+        public SimpleUserDto Author { get; set; }
+    }
+
+    public class UpdateAnalysisOrder
+    {
+        public bool ReachedGain { get; set; }
+
+        public bool ReachedLoss { get; set; }
+
+        [Required]
+        [Range(0, long.MaxValue)]
+        public long ReachedDate { get; set; }
     }
 }

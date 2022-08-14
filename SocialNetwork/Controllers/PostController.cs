@@ -44,7 +44,8 @@ namespace SocialNetwork.Controllers
             IQueryable<Post> query = _unitOfWork.Posts
                                     .Find()
                                     .Include(p => p.Author)
-                                    .Include(p => p.PostTags);
+                                    .Include(p => p.PostTags)
+                                    .Include(p => p.Analysis);
 
             if (User.Identity.IsAuthenticated)
                 query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
@@ -53,7 +54,7 @@ namespace SocialNetwork.Controllers
             query = tags.IsNullOrWhitespace() ? query : query.Where(p => p.PostTags.Any(pt => pt.TagID == tags)); // tag
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
-                        .Select(p => _mapper.Map<SearchPostDto>(p))
+                        .Select(p => _mapper.Map<SearchPostWithAnalysisDto>(p))
                         .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
@@ -66,13 +67,14 @@ namespace SocialNetwork.Controllers
             IQueryable<Post> query = _unitOfWork.Posts
                                     .Find()
                                     .Include(p => p.Author)
-                                    .Include(p => p.PostTags);
+                                    .Include(p => p.PostTags)
+                                    .Include(p => p.Analysis);
 
             if (User.Identity.IsAuthenticated)
                 query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
-                        .Select(p => _mapper.Map<SearchPostDto>(p))
+                        .Select(p => _mapper.Map<SearchPostWithAnalysisDto>(p))
                         .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
@@ -83,10 +85,12 @@ namespace SocialNetwork.Controllers
             IQueryable<Post> query = _unitOfWork.Posts
                                     .Find(p => p.UserId == User.FindFirst("userId").Value)
                                     .Include(p => p.PostTags)
-                                    .Include(p => p.PostVotes.Where(pp => pp.UserId == User.FindFirst("userId").Value));
+                                    .Include(p => p.PostVotes.Where(pp => pp.UserId == User.FindFirst("userId").Value))
+                                    .Include(p => p.Analysis);
+
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
-                        .Select(p => _mapper.Map<SearchPostDto>(p))
+                        .Select(p => _mapper.Map<SearchPostWithAnalysisDto>(p))
                         .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
@@ -99,13 +103,15 @@ namespace SocialNetwork.Controllers
             IQueryable<Post> query = _unitOfWork.Posts
                     .Find(p => p.Id == post_id)
                     .Include(p => p.Author)
-                    .Include(p => p.PostTags);
+                    .Include(p => p.PostTags)
+                    .Include(p => p.Analysis);
+
 
             if (User.Identity.IsAuthenticated)
                 query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
 
             var singlePost = query
-                    .Select(p => _mapper.Map<SinglePostDto>(p))
+                    .Select(p => _mapper.Map<SinglePostWithAnalysisDto>(p))
                     .FirstOrDefault();
 
             if (singlePost is null)
@@ -143,7 +149,7 @@ namespace SocialNetwork.Controllers
                 var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
                 var post = _mapper.Map<Post>(postCuOrder);
 
-                if(!postCuOrder.Time.IsNullOrEmpty())
+                if (!postCuOrder.Time.IsNullOrEmpty())
                 {
                     var analysis = new Analysis()
                     {
@@ -151,21 +157,27 @@ namespace SocialNetwork.Controllers
                         Template = postCuOrder.Template
                     };
 
-                    if(long.TryParse(postCuOrder.EnterPrice, out long longValue))
+                    if (long.TryParse(postCuOrder.Time, out long longValue))
                         analysis.Time = longValue;
 
-                    if(double.TryParse(postCuOrder.EnterPrice, out double doubleValue))
+                    if (double.TryParse(postCuOrder.EnterPrice, out double doubleValue))
                         analysis.EnterPrice = doubleValue;
-                    if(double.TryParse(postCuOrder.StopGain, out doubleValue))
+                    if (double.TryParse(postCuOrder.StopGain, out doubleValue))
                         analysis.StopGain = doubleValue;
-                    if(double.TryParse(postCuOrder.StopLoss, out doubleValue))
+                    if (double.TryParse(postCuOrder.StopLoss, out doubleValue))
                         analysis.StopLoss = doubleValue;
 
                     if (bool.TryParse(postCuOrder.IsShort, out bool boolValue))
                         analysis.IsShort = boolValue;
 
-                    if (!0d.IsIn(analysis.EnterPrice, analysis.StopGain, analysis.StopLoss) || )
+                    if (0d.IsIn(analysis.EnterPrice, analysis.StopGain, analysis.StopLoss) || analysis.Time <= 0)
                         Log.Warning("No enough data for signal");
+                    else
+                    {
+                        _unitOfWork.Analyses.Add(analysis, true);
+                        post.AnalysisId = analysis.Id;
+                    }
+
                 }
 
                 var files = HttpContext.Request.Form.Files;
@@ -245,6 +257,31 @@ namespace SocialNetwork.Controllers
                 }
 
                 return NotFound(new ResponseDto { Result = false, Error = "post not found." });
+            }
+
+            return BadRequest();
+        }
+
+        [AllowAnonymous]
+        [HttpPatch("signal/{id}")]
+        public async Task<IActionResult> UpdateAnalysis(int id, [FromBody] UpdateAnalysisOrder updateAnalysisOrder)
+        {
+            if (ModelState.IsValid)
+            {
+                var post = _unitOfWork.Posts.Find(p => p.Id == id).Include(p => p.Analysis).FirstOrDefault();
+
+                if (post is not null && post.Analysis is not null)
+                {
+                    post.Analysis.ReachedGain = updateAnalysisOrder.ReachedGain;
+                    post.Analysis.ReachedLoss = updateAnalysisOrder.ReachedLoss;
+                    post.Analysis.ReachedDate = updateAnalysisOrder.ReachedDate;
+
+                    await _unitOfWork.CompleteAsync();
+
+                    return Ok(post.Analysis);
+                }
+
+                return NotFound(new ResponseDto { Result = false, Error = post is null ? "post not found." : "post has no signal." });
             }
 
             return BadRequest();

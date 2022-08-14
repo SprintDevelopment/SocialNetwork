@@ -22,6 +22,51 @@ namespace SocialNetwork.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("SocialNetwork.Models.Analysis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Drawing")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<double>("EnterPrice")
+                        .HasColumnType("double precision");
+
+                    b.Property<bool>("IsShort")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("ReachedDate")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("ReachedGain")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ReachedLoss")
+                        .HasColumnType("boolean");
+
+                    b.Property<double>("StopGain")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("StopLoss")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Template")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("Time")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Analyses");
+                });
+
             modelBuilder.Entity("SocialNetwork.Models.BlackListPattern", b =>
                 {
                     b.Property<int>("Id")
@@ -200,6 +245,9 @@ namespace SocialNetwork.Migrations
                     b.Property<bool>("AdminWhitelist")
                         .HasColumnType("boolean");
 
+                    b.Property<int?>("AnalysisId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("AutoReport")
                         .HasColumnType("boolean");
 
@@ -254,6 +302,8 @@ namespace SocialNetwork.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AnalysisId");
 
                     b.HasIndex("UserId");
 
@@ -481,11 +531,17 @@ namespace SocialNetwork.Migrations
 
             modelBuilder.Entity("SocialNetwork.Models.Post", b =>
                 {
+                    b.HasOne("SocialNetwork.Models.Analysis", "Analysis")
+                        .WithMany()
+                        .HasForeignKey("AnalysisId");
+
                     b.HasOne("SocialNetwork.Models.User", "Author")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Analysis");
 
                     b.Navigation("Author");
                 });
