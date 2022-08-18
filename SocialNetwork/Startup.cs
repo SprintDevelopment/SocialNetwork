@@ -17,6 +17,8 @@ using Newtonsoft.Json;
 using Microsoft.IdentityModel.Logging;
 using Serilog;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using SocialNetwork.Assets.Values.Constants;
 
 namespace SocialNetwork
 {
@@ -46,7 +48,12 @@ namespace SocialNetwork
             services.AddTransient<IFileService, FileService>();
             services.AddAutoMapper(typeof(Startup));
             services.AddControllers(options => options.ReturnHttpNotAcceptable = true).AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
-
+            
+            services.AddHttpClient(NamedClientsConstants.NOTIFICATION_CLIENT, httpClient =>
+            {
+                httpClient.BaseAddress = new Uri("https://crypto.hooshdadeh.ir:50001/v2/social/notification/");
+            });
+            
             services.Configure<TokenOptions>(Configuration.GetSection("AppSettings"));
 
             services.AddAuthentication().AddJwtBearer(x =>

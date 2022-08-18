@@ -114,6 +114,48 @@ namespace SocialNetwork.Models
         public int MyVote { get; set; }
     }
 
+    public class CommentNotificationOrder
+    {
+        [JsonProperty("secret")]
+        public string Secret { get; set; } = "9TgVm748%_+f=-?>1g";
+
+        [JsonProperty("post_id")]
+        public int PostId { get; set; }
+
+        [JsonProperty("comment_id")]
+        public int CommentId { get; set; }
+
+        [JsonProperty("comment_text")]
+        public string CommentText { get; set; }
+
+        [JsonProperty("tags")]
+        public IEnumerable<string> Tags { get; set; }
+    }
+
+    public class ReplyToPostNotificationOrder : CommentNotificationOrder
+    {
+        [JsonProperty("comment_username")]
+        public string CommentUsername { get; set; }
+
+        [JsonProperty("post_userid")]
+        public string PostUserId { get; set; }
+
+        [JsonProperty("post_text")]
+        public string PostText { get; set; }
+    }
+
+    public class ReplyToCommentNotificationOrder : CommentNotificationOrder
+    {
+        [JsonProperty("reply_username")]
+        public string ReplyUsername { get; set; }
+
+        [JsonProperty("comment_userid")]
+        public string CommentUserId { get; set; }
+
+        [JsonProperty("reply_text")]
+        public string ReplyText { get; set; }
+    }
+
     public class SingleCommentDto : SearchCommentDto
     {
         public SimpleUserDto Author { get; set; }

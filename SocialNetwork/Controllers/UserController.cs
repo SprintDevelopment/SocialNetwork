@@ -88,12 +88,12 @@ namespace SocialNetwork.Controllers
             return BadRequest(new DetailedResponse { Detail = "Unknown" });
         }
 
-        [HttpPatch]
-        public async Task<IActionResult> UpdateUsername(UserUpdateUsernameOrder userUpdateUsernameOrder)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateUsername(string id, [FromForm] UserUpdateUsernameOrder userUpdateUsernameOrder)
         {
-            if (ModelState.IsValid)
+            if (!id.IsNullOrEmpty() && ModelState.IsValid)
             {
-                var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
+                var user = _unitOfWork.Users.Find(u => u.Id == id).FirstOrDefault();
 
                 if (userUpdateUsernameOrder.Username == user.Username)
                     return BadRequest(new UserError { Username = new string[] { "username is the same as previous." } });

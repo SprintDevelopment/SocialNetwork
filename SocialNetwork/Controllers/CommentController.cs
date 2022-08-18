@@ -9,11 +9,15 @@ using Newtonsoft.Json;
 using Serilog;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Assets.Extensions;
+using SocialNetwork.Assets.Values.Constants;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SocialNetwork.Controllers
 {
@@ -24,11 +28,13 @@ namespace SocialNetwork.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public CommentController(IMapper mapper, IUnitOfWork unitOfWork)
+        public CommentController(IMapper mapper, IUnitOfWork unitOfWork, IHttpClientFactory httpClientFactory)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _httpClientFactory = httpClientFactory;
         }
 
         [AllowAnonymous]
@@ -57,7 +63,7 @@ namespace SocialNetwork.Controllers
             Log.Warning(JsonConvert.SerializeObject(commentCuOrder));
             if (ModelState.IsValid)
             {
-                var post = _unitOfWork.Posts.Find(p => p.Id == commentCuOrder.PostId).FirstOrDefault();
+                var post = _unitOfWork.Posts.Find(p => p.Id == commentCuOrder.PostId).Include(p => p.PostTags).FirstOrDefault();
 
                 if (post is not null)
                 {
@@ -81,6 +87,50 @@ namespace SocialNetwork.Controllers
                     post.Comments++;
 
                     await _unitOfWork.CompleteAsync();
+                    
+                    {
+                        StringContent notification = null;
+                        
+                        if (comment.ReplyTo is null)
+                            notification = new StringContent(JsonConvert.SerializeObject(
+                                new ReplyToPostNotificationOrder
+                                {
+                                    CommentId = comment.Id,
+                                    CommentText = comment.Text,
+                                    CommentUsername = user.Username,
+                                    PostId = post.Id,
+                                    PostText = post.Text,
+                                    PostUserId = post.UserId,
+                                    Tags = post.PostTags.Select(t => t.TagID)
+                                }),
+                                Encoding.UTF8,
+                                Application.Json);
+                        else
+                        {
+                            var previousComment = _unitOfWork.Comments.Find(c => c.Id == comment.ReplyTo.Value).FirstOrDefault();
+
+                            notification = new StringContent(JsonConvert.SerializeObject(
+                                new ReplyToCommentNotificationOrder
+                                {
+                                    CommentId = comment.Id,
+                                    CommentText = previousComment.Text,
+                                    ReplyUsername = user.Username,
+                                    PostId = post.Id,
+                                    ReplyText = comment.Text,
+                                    CommentUserId = previousComment.UserId,
+                                    Tags = post.PostTags.Select(t => t.TagID)
+                                }),
+                                Encoding.UTF8,
+                                Application.Json);
+                        }
+
+                        var httpClient = _httpClientFactory.CreateClient(NamedClientsConstants.NOTIFICATION_CLIENT);
+                        
+                        using var httpResponseMessage =
+                            await httpClient.PostAsync(comment.ReplyTo is null ? "comment" : "reply", notification);
+
+                        httpResponseMessage.EnsureSuccessStatusCode();
+                    }
 
                     return Ok(_mapper.Map<SingleCommentDto>(comment));
                 }

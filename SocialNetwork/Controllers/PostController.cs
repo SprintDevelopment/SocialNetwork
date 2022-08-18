@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Serilog;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Assets.Extensions;
+using SocialNetwork.Assets.Values.Constants;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using SocialNetwork.Services;
@@ -16,7 +17,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SocialNetwork.Controllers
 {
@@ -28,12 +32,14 @@ namespace SocialNetwork.Controllers
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileService _fileService;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public PostController(IMapper mapper, IUnitOfWork unitOfWork, IFileService fileService)
+        public PostController(IMapper mapper, IUnitOfWork unitOfWork, IFileService fileService, IHttpClientFactory httpClientFactory)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _fileService = fileService;
+            _httpClientFactory = httpClientFactory;
         }
 
         [AllowAnonymous]
@@ -205,6 +211,26 @@ namespace SocialNetwork.Controllers
 
                 await _unitOfWork.CompleteAsync();
 
+                {
+                    StringContent notification = new StringContent(JsonConvert.SerializeObject(
+                            new PersonalPostNotificationOrder
+                            {
+                                Id = post.Id,
+                                Text = post.Text,
+                                UserId = user.Id,
+                                Username = user.Username,
+                            }),
+                            Encoding.UTF8,
+                            Application.Json);
+
+                    var httpClient = _httpClientFactory.CreateClient(NamedClientsConstants.NOTIFICATION_CLIENT);
+
+                    using var httpResponseMessage =
+                        await httpClient.PostAsync("personal", notification);
+
+                    httpResponseMessage.EnsureSuccessStatusCode();
+                }
+
                 return Ok(_mapper.Map<SinglePostDto>(post));
             }
 
@@ -264,7 +290,7 @@ namespace SocialNetwork.Controllers
 
         [AllowAnonymous]
         [HttpPatch("signal/{id}")]
-        public async Task<IActionResult> UpdateAnalysis(int id, [FromBody] UpdateAnalysisOrder updateAnalysisOrder)
+        public async Task<IActionResult> UpdateAnalysis(int id, [FromForm] UpdateAnalysisOrder updateAnalysisOrder)
         {
             if (ModelState.IsValid)
             {

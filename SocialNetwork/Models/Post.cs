@@ -118,6 +118,24 @@ namespace SocialNetwork.Models
         public int MyVote { get; set; }
     }
 
+    public class PersonalPostNotificationOrder
+    {
+        [JsonProperty("secret")]
+        public string Secret { get; set; } = "9TgVm748%_+f=-?>1g";
+
+        [JsonProperty("post_id")]
+        public int Id { get; set; }
+
+        [JsonProperty("post_text")]
+        public string Text { get; set; }
+
+        [JsonProperty("post_userid")]
+        public string UserId { get; set; }
+
+        [JsonProperty("post_username")]
+        public string Username { get; set; }
+    }
+
     public class SinglePostDto : SearchPostDto
     {
         [JsonProperty("post_author")]
