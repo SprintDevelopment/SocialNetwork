@@ -34,7 +34,7 @@ namespace SocialNetwork
                     .WriteTo.Console())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseUrls("http://0.0.0.0:5981");
+                    webBuilder.UseUrls("http://127.0.0.1:8081");
                     webBuilder.UseStartup<Startup>();
                 });
     }

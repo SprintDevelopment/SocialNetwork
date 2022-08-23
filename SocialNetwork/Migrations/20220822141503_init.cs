@@ -2,12 +2,36 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+#nullable disable
+
 namespace SocialNetwork.Migrations
 {
     public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Analyses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Drawing = table.Column<string>(type: "text", nullable: false),
+                    Template = table.Column<string>(type: "text", nullable: false),
+                    Time = table.Column<long>(type: "bigint", nullable: false),
+                    IsShort = table.Column<bool>(type: "boolean", nullable: false),
+                    EnterPrice = table.Column<double>(type: "double precision", nullable: false),
+                    StopGain = table.Column<double>(type: "double precision", nullable: false),
+                    StopLoss = table.Column<double>(type: "double precision", nullable: false),
+                    ReachedGain = table.Column<bool>(type: "boolean", nullable: false),
+                    ReachedLoss = table.Column<bool>(type: "boolean", nullable: false),
+                    ReachedDate = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Analyses", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "BlackListPatterns",
                 columns: table => new
@@ -86,8 +110,7 @@ namespace SocialNetwork.Migrations
                     WhiteList = table.Column<bool>(type: "boolean", nullable: false),
                     ReportCandidate = table.Column<bool>(type: "boolean", nullable: false),
                     AdminReputation = table.Column<float>(type: "real", nullable: false),
-                    Token = table.Column<string>(type: "text", nullable: false),
-                    Password = table.Column<string>(type: "text", nullable: false)
+                    Token = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -137,11 +160,17 @@ namespace SocialNetwork.Migrations
                     Likes = table.Column<int>(type: "integer", nullable: false),
                     Dislikes = table.Column<int>(type: "integer", nullable: false),
                     NotificationSent = table.Column<bool>(type: "boolean", nullable: false),
+                    AnalysisId = table.Column<int>(type: "integer", nullable: true),
                     UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Posts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Posts_Analyses_AnalysisId",
+                        column: x => x.AnalysisId,
+                        principalTable: "Analyses",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Posts_Users_UserId",
                         column: x => x.UserId,
@@ -166,6 +195,12 @@ namespace SocialNetwork.Migrations
                     table.ForeignKey(
                         name: "FK_Relationships_Users_FollowingId",
                         column: x => x.FollowingId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Relationships_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -294,6 +329,11 @@ namespace SocialNetwork.Migrations
                 column: "CommentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Posts_AnalysisId",
+                table: "Posts",
+                column: "AnalysisId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_UserId",
                 table: "Posts",
                 column: "UserId");
@@ -312,6 +352,11 @@ namespace SocialNetwork.Migrations
                 name: "IX_Relationships_FollowingId",
                 table: "Relationships",
                 column: "FollowingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Relationships_UserId",
+                table: "Relationships",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -348,6 +393,9 @@ namespace SocialNetwork.Migrations
 
             migrationBuilder.DropTable(
                 name: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "Analyses");
 
             migrationBuilder.DropTable(
                 name: "Users");
