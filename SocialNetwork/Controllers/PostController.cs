@@ -292,6 +292,7 @@ namespace SocialNetwork.Controllers
         [HttpPatch("signal/{id}")]
         public async Task<IActionResult> UpdateAnalysis(int id, [FromForm] UpdateAnalysisOrder updateAnalysisOrder)
         {
+            Log.Error(JsonConvert.SerializeObject(updateAnalysisOrder));
             if (ModelState.IsValid)
             {
                 var post = _unitOfWork.Posts.Find(p => p.Id == id).Include(p => p.Analysis).FirstOrDefault();

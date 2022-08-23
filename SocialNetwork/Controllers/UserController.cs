@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SocialNetwork.Assets.Dtos;
@@ -63,6 +64,19 @@ namespace SocialNetwork.Controllers
                 return Ok(user);
 
             return NotFound();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("/search/users")]
+        public IActionResult Search(string username, int offset, int limit)
+        {
+            if (username.IsNullOrWhitespace() || username.Length < 3)
+                return BadRequest(new ResponseDto { Result = false, Error = "not enough input data" });
+
+            return Ok(_unitOfWork.Users.Find(u => u.Username.Contains(username))
+                .Select(u => _mapper.Map<SimpleUserDto>(u))
+                .AsEnumerable()
+                .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 
         [AllowAnonymous]

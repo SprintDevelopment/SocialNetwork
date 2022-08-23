@@ -36,7 +36,7 @@ namespace SocialNetwork.Assets.Extensions
                        Selected = selectedValue != null && item.GetPropertyValue(idPropertyName).Equals(selectedValue.ToString())
                    };
         }
-        public static PaginationDto<T> Paginate<T>(this IEnumerable<T> query, string url, int offset = 0, int limit = 0)
+        public static PaginationDto<T> Paginate<T>(this IEnumerable<T> query, string url, int offset = 0, int limit = 20)
         {
             return new PaginationDto<T> 
             {
