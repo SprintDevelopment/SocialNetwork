@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using SocialNetwork.Models;
 using SocialNetwork.Assets.Extensions;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System;
+using SocialNetwork.Assets.Values.Constants;
 
 namespace SocialNetwork.Assets
 {
@@ -35,9 +34,7 @@ namespace SocialNetwork.Assets
 
         public void Process(Post source, SearchPostDto destination, ResolutionContext context)
         {
-            var request = _httpContextAccessor.HttpContext.Request;
-
-            destination.Image = source.Image.IsNullOrWhitespace() ? "" :  $"{request.Scheme}://{request.Host}{request.PathBase}/post-images/{source.Image}";
+            destination.Image = source.Image.IsNullOrWhitespace() ? "" :  $"{UrlConstants.SERVER_URL}/post-images/{source.Image}";
         }
     }
 
