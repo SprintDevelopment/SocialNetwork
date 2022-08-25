@@ -37,7 +37,8 @@ namespace SocialNetwork.Controllers
                                     .Include(p => p.Author)
                                     .Include(p => p.PostTags)
                                     .Include(p => p.PostVotes.Where(pp => pp.UserId == User.FindFirst("userId").Value))
-                                    .Include(p => p.Analysis);
+                                    .Include(p => p.Analysis)
+                                    .Where(p => p.PostTags.Any(pt => pt.TagID == "تحلیل"));
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
                         .Select(p => _mapper.Map<SearchPostWithAnalysisDto>(p))

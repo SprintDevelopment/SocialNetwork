@@ -30,8 +30,7 @@ namespace SocialNetwork
                 .UseSerilog((context, services, configuration) => configuration
                     .ReadFrom.Configuration(context.Configuration)
                     .ReadFrom.Services(services)
-                    .Enrich.FromLogContext()
-                    .WriteTo.Console())
+                    .Enrich.FromLogContext())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseUrls("http://127.0.0.1:8081");

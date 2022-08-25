@@ -27,10 +27,10 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm]PostVoteCuOrder postVoteCuOrder)
+        public async Task<IActionResult> Create([FromForm] PostVoteCuOrder postVoteCuOrder)
         {
-            var r = HttpContext.Request;
-            Log.Warning(JsonConvert.SerializeObject(postVoteCuOrder));
+            Log.Warning("For Create : {0}", JsonConvert.SerializeObject(postVoteCuOrder));
+
             if (ModelState.IsValid)
             {
                 var postVote = _mapper.Map<PostVote>(postVoteCuOrder);
@@ -54,8 +54,10 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromForm]PostVoteCuOrder postVoteCuOrder)
+        public async Task<IActionResult> Update([FromForm] PostVoteCuOrder postVoteCuOrder)
         {
+            Log.Warning("For Update : {0}", JsonConvert.SerializeObject(postVoteCuOrder));
+
             if (ModelState.IsValid)
             {
                 var post = await _unitOfWork.Posts.GetAsync(postVoteCuOrder.PostId);
@@ -84,8 +86,10 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Delete(PostVoteCuOrder postVoteCuOrder)
+        public async Task<IActionResult> Delete([FromForm] PostVoteCuOrder postVoteCuOrder)
         {
+            Log.Warning("For Delete : {0}", JsonConvert.SerializeObject(postVoteCuOrder));
+
             if (ModelState.IsValid)
             {
                 var post = await _unitOfWork.Posts.GetAsync(postVoteCuOrder.PostId);
