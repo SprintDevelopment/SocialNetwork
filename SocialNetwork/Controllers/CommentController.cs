@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Serilog;
@@ -45,12 +46,12 @@ namespace SocialNetwork.Controllers
             IQueryable<Comment> query = _unitOfWork.Comments
                     .Find()
                     .Include(c => c.Author);
-            
+
             if (User.Identity.IsAuthenticated)
                 query = query.Include(p => p.CommentVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
 
             query = post == 0 ? query : query.Where(c => c.PostId == post); // post
-            
+
             return Ok(query.OrderBy(c => c.CreateTime)
                         .Select(c => _mapper.Map<SearchCommentDto>(c))
                         .AsEnumerable()
@@ -58,21 +59,21 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm]CommentCuOrder commentCuOrder)
+        public async Task<IActionResult> Create([FromForm] CommentCreateOrder commentCreateOrder)
         {
-            Log.Warning(JsonConvert.SerializeObject(commentCuOrder));
+            Log.Warning(JsonConvert.SerializeObject(commentCreateOrder));
             if (ModelState.IsValid)
             {
-                var post = _unitOfWork.Posts.Find(p => p.Id == commentCuOrder.PostId).Include(p => p.PostTags).FirstOrDefault();
+                var post = _unitOfWork.Posts.Find(p => p.Id == commentCreateOrder.PostId).Include(p => p.PostTags).FirstOrDefault();
 
                 if (post is not null)
                 {
                     var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
-                    var comment = _mapper.Map<Comment>(commentCuOrder);
+                    var comment = _mapper.Map<Comment>(commentCreateOrder);
 
                     if (!user.Verified && !user.WhiteList)
                     {
-                        var validateReulst = _unitOfWork.BlackListPatterns.ValidateMessage(commentCuOrder.Text);
+                        var validateReulst = _unitOfWork.BlackListPatterns.ValidateMessage(commentCreateOrder.Text);
                         if (!validateReulst.IsNullOrWhitespace())
                         {
                             comment.Reported = true;
@@ -87,11 +88,12 @@ namespace SocialNetwork.Controllers
                     post.Comments++;
 
                     await _unitOfWork.CompleteAsync();
-                    
+
+
                     {
                         StringContent notification = null;
-                        
-                        if (comment.ReplyTo is null)
+
+                        if (comment.ReplyTo is null && post.UserId != user.Id)
                             notification = new StringContent(JsonConvert.SerializeObject(
                                 new ReplyToPostNotificationOrder
                                 {
@@ -109,23 +111,24 @@ namespace SocialNetwork.Controllers
                         {
                             var previousComment = _unitOfWork.Comments.Find(c => c.Id == comment.ReplyTo.Value).FirstOrDefault();
 
-                            notification = new StringContent(JsonConvert.SerializeObject(
-                                new ReplyToCommentNotificationOrder
-                                {
-                                    CommentId = comment.Id,
-                                    CommentText = previousComment.Text,
-                                    ReplyUsername = user.Username,
-                                    PostId = post.Id,
-                                    ReplyText = comment.Text,
-                                    CommentUserId = previousComment.UserId,
-                                    Tags = post.PostTags.Select(t => t.TagID)
-                                }),
-                                Encoding.UTF8,
-                                Application.Json);
+                            if (previousComment is not null && previousComment.UserId != user.Id) // Don't send notifcation for reply to yourself
+                                notification = new StringContent(JsonConvert.SerializeObject(
+                                    new ReplyToCommentNotificationOrder
+                                    {
+                                        CommentId = comment.Id,
+                                        CommentText = previousComment.Text,
+                                        ReplyUsername = user.Username,
+                                        PostId = post.Id,
+                                        ReplyText = comment.Text,
+                                        CommentUserId = previousComment.UserId,
+                                        Tags = post.PostTags.Select(t => t.TagID)
+                                    }),
+                                    Encoding.UTF8,
+                                    Application.Json);
                         }
 
                         var httpClient = _httpClientFactory.CreateClient(NamedClientsConstants.NOTIFICATION_CLIENT);
-                        
+
                         using var httpResponseMessage =
                             await httpClient.PostAsync(comment.ReplyTo is null ? "comment" : "reply", notification);
 
@@ -142,33 +145,25 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody]CommentCuOrder commentCuOrder)
+        public async Task<IActionResult> Update(int id, [FromForm] CommentUpdateOrder commentUpdateOrder)
         {
+            Log.Warning(JsonConvert.SerializeObject(commentUpdateOrder));
             if (ModelState.IsValid)
             {
                 var comment = _unitOfWork.Comments.Find(c => c.Id == id).FirstOrDefault();
+                Log.Warning(JsonConvert.SerializeObject(comment));
 
                 if (comment is not null)
                 {
-                    var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
-                    _mapper.Map(commentCuOrder, comment);
+                    if (comment.UserId != User.FindFirst("userId").Value)
+                        return BadRequest(new ErrorResponse { Error = "ownership error" });
 
-                    if (!user.Verified && !user.WhiteList)
-                    {
-                        var validateReulst = _unitOfWork.BlackListPatterns.ValidateMessage(commentCuOrder.Text);
-                        if (!validateReulst.IsNullOrWhitespace())
-                        {
-                            comment.Reported = true;
-                            comment.AutoReport = true;
-                            comment.Description = validateReulst;
-
-                            // CHECK FOR REPORT USER . . .
-                        }
-                    }
+                    _mapper.Map(commentUpdateOrder, comment);
+                    Log.Warning(JsonConvert.SerializeObject(comment));
 
                     await _unitOfWork.CompleteAsync();
 
-                    return Ok(comment);
+                    return Ok(_mapper.Map<SingleCommentDto>(comment));
                 }
 
                 return NotFound(new ResponseDto { Result = false, Error = "comment not found." });

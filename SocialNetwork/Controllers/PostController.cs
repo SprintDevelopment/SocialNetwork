@@ -134,46 +134,46 @@ namespace SocialNetwork.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] PostWithAnalysisCuOrder postCuOrder)
+        public async Task<IActionResult> Create([FromForm] PostWithAnalysisCreateOrder postCreateOrder)
         {
-            Log.Warning(JsonConvert.SerializeObject(postCuOrder));
+            Log.Warning(JsonConvert.SerializeObject(postCreateOrder));
             if (ModelState.IsValid)
             {
-                if (postCuOrder.Tags.IsNullOrEmpty())
+                if (postCreateOrder.Tags.IsNullOrEmpty())
                 {
                     Log.Warning("no tags found in create post");
                     return BadRequest(new ErrorResponse { Error = "no tags" });
                 }
 
-                if (postCuOrder.Tags?.Count() > 2)
+                if (postCreateOrder.Tags?.Count() > 2)
                     return BadRequest(new ErrorResponse { Error = "too many tags" });
-                else if (postCuOrder.Tags?.Count() == 2 && !postCuOrder.Tags.HasAnyItemIn("تحلیل", "آموزش"))
+                else if (postCreateOrder.Tags?.Count() == 2 && !postCreateOrder.Tags.HasAnyItemIn("تحلیل", "آموزش"))
                     return BadRequest(new ErrorResponse { Error = "invalid tags" });
 
                 // UPLOAD IMAGE . . .
 
                 var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
-                var post = _mapper.Map<Post>(postCuOrder);
+                var post = _mapper.Map<Post>(postCreateOrder);
 
-                if (!postCuOrder.Time.IsNullOrEmpty())
+                if (!postCreateOrder.Time.IsNullOrEmpty())
                 {
                     var analysis = new Analysis()
                     {
-                        Drawing = postCuOrder.Drawing,
-                        Template = postCuOrder.Template
+                        Drawing = postCreateOrder.Drawing,
+                        Template = postCreateOrder.Template
                     };
 
-                    if (long.TryParse(postCuOrder.Time, out long longValue))
+                    if (long.TryParse(postCreateOrder.Time, out long longValue))
                         analysis.Time = longValue;
 
-                    if (double.TryParse(postCuOrder.EnterPrice, out double doubleValue))
+                    if (double.TryParse(postCreateOrder.EnterPrice, out double doubleValue))
                         analysis.EnterPrice = doubleValue;
-                    if (double.TryParse(postCuOrder.StopGain, out doubleValue))
+                    if (double.TryParse(postCreateOrder.StopGain, out doubleValue))
                         analysis.StopGain = doubleValue;
-                    if (double.TryParse(postCuOrder.StopLoss, out doubleValue))
+                    if (double.TryParse(postCreateOrder.StopLoss, out doubleValue))
                         analysis.StopLoss = doubleValue;
 
-                    if (bool.TryParse(postCuOrder.IsShort, out bool boolValue))
+                    if (bool.TryParse(postCreateOrder.IsShort, out bool boolValue))
                         analysis.IsShort = boolValue;
 
                     if (0d.IsIn(analysis.EnterPrice, analysis.StopGain, analysis.StopLoss) || analysis.Time <= 0)
@@ -190,12 +190,12 @@ namespace SocialNetwork.Controllers
                 if (files.Count > 0)
                     post.Image = await _fileService.UploadAsync(files[0], "post-images", "");
 
-                post.Symbol = postCuOrder.Tags.FirstOrDefault(t => !t.IsIn("تحلیل", "آموزش")) ?? "TEMP";
+                post.Symbol = postCreateOrder.Tags.FirstOrDefault(t => !t.IsIn("تحلیل", "آموزش")) ?? "TEMP";
 
                 Log.Warning(JsonConvert.SerializeObject(post));
                 if (!user.Verified && !user.WhiteList)
                 {
-                    var validateReulst = _unitOfWork.BlackListPatterns.ValidateMessage(postCuOrder.Text);
+                    var validateReulst = _unitOfWork.BlackListPatterns.ValidateMessage(postCreateOrder.Text);
                     if (!validateReulst.IsNullOrWhitespace())
                     {
                         post.AutoReport = true;
@@ -241,45 +241,27 @@ namespace SocialNetwork.Controllers
         // posts/{post_id} -> { post_id }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] PostCuOrder postCuOrder)
+        public async Task<IActionResult> Update(int id, [FromForm] PostUpdateOrder postUpdateOrder)
         {
+            Log.Warning(JsonConvert.SerializeObject(postUpdateOrder));
             if (ModelState.IsValid)
             {
-                var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
                 var post = _unitOfWork.Posts.Find(p => p.Id == id).FirstOrDefault();
 
                 var files = HttpContext.Request.Form.Files;
                 if (files.Count > 0)
                     post.Image = await _fileService.UploadAsync(files[0], "post-images", post.Image);
 
-
                 if (post is not null)
                 {
-                    if (postCuOrder.Tags?.Count() > 2)
-                        return BadRequest(new ErrorResponse { Error = "too many tags" });
+                    if (post.UserId != User.FindFirst("userId").Value)
+                        return BadRequest(new ErrorResponse { Error = "ownership error" });
 
-                    // UPLOAD IMAGE . . .
-
-                    _mapper.Map(postCuOrder, post);
-
-                    if (!user.Verified && !user.WhiteList)
-                    {
-                        var validateReulst = _unitOfWork.BlackListPatterns.ValidateMessage(postCuOrder.Text);
-                        if (!validateReulst.IsNullOrWhitespace())
-                        {
-                            post.AutoReport = true;
-                            post.AutoReportTime = DateTime.Now;
-                            post.Description = validateReulst;
-
-                            // CHECK FOR REPORT USER . . .
-                        }
-                    }
-
-                    //_unitOfWork.PostTags.AddRange(post.PostTags.Select(pt => new PostTag { PostID = post.Id, TagID = pt.TagID }));
+                    _mapper.Map(postUpdateOrder, post);
 
                     await _unitOfWork.CompleteAsync();
 
-                    return Ok(post);
+                    return Ok(_mapper.Map<SinglePostDto>(post));
                 }
 
                 return NotFound(new ResponseDto { Result = false, Error = "post not found." });

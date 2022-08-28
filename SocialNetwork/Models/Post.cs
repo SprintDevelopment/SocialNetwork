@@ -70,14 +70,18 @@ namespace SocialNetwork.Models
         public Analysis Analysis { get; set; }
     }
 
-    public class PostCuOrder : ShouldPassUserId
+    public class PostCreateOrder : ShouldPassUserId
     {
-        public int Id { get; set; }
-
         [Required]
         public string Text { get; set; }
 
         public virtual IEnumerable<string> Tags { get; set; }
+    }
+
+    public class PostUpdateOrder : ShouldPassUserId
+    {
+        [Required]
+        public string Text { get; set; }
     }
 
     public class SearchPostDto

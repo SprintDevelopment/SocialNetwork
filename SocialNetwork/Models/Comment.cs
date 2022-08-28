@@ -59,10 +59,8 @@ namespace SocialNetwork.Models
         public virtual IEnumerable<CommentVote> CommentVotes { get; set; }
     }
 
-    public class CommentCuOrder : ShouldPassUserId
+    public class CommentCreateOrder : ShouldPassUserId
     {
-        public int Id { get; set; }
-
         [Required]
         public string Text { get; set; }
         
@@ -72,6 +70,12 @@ namespace SocialNetwork.Models
         
         [BindProperty(Name = "reply_to")]
         public int? ReplyTo { get; set; }
+    }
+
+    public class CommentUpdateOrder : ShouldPassUserId
+    {
+        [Required]
+        public string Text { get; set; }
     }
 
     public class SearchCommentDto
@@ -94,7 +98,7 @@ namespace SocialNetwork.Models
         [JsonProperty("user")]
         public string UserId { get; set; }
 
-        [JsonProperty("edited_time")]
+        [JsonProperty("edited_at")]
         public string EditTime { get; set; }
 
         public string Description { get; set; }

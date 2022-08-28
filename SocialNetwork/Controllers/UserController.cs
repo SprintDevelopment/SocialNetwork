@@ -73,7 +73,7 @@ namespace SocialNetwork.Controllers
             if (username.IsNullOrWhitespace() || username.Length < 3)
                 return BadRequest(new ResponseDto { Result = false, Error = "not enough input data" });
 
-            return Ok(_unitOfWork.Users.Find(u => u.Username.Contains(username))
+            return Ok(_unitOfWork.Users.Find(u => u.Username.ToLower().Contains(username.ToLower()))
                 .Select(u => _mapper.Map<SimpleUserDto>(u))
                 .AsEnumerable()
                 .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));

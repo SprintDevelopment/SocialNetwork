@@ -99,10 +99,13 @@ namespace SocialNetwork.Assets
                 .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
 
-            CreateMap<PostCuOrder, Post>()
-                .ForMember(model => model.CreateTime, opt => { opt.PreCondition(order => order.Id == 0); opt.MapFrom(order => DateTime.Now); })
-                .ForMember(model => model.EditTime, opt => { opt.PreCondition(order => order.Id != 0); opt.MapFrom(order => DateTime.Now); })
+            CreateMap<PostCreateOrder, Post>()
+                .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
                 .ForMember(model => model.PostTags, opt => opt.MapFrom(order => order.Tags.Select(t => new PostTag { TagID = t })))
+                .AfterMap<SetUserId>();
+
+            CreateMap<PostUpdateOrder, Post>()
+                .ForMember(model => model.EditTime, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>();
             
             // Analysis
@@ -166,9 +169,12 @@ namespace SocialNetwork.Assets
                 .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.CommentVotes.Any() ? (model.CommentVotes.First().IsDown ? -1 : 1) : 0));
 
-            CreateMap<CommentCuOrder, Comment>()
-                .ForMember(model => model.CreateTime, opt => { opt.PreCondition(order => order.Id == 0); opt.MapFrom(order => DateTime.Now); })
-                .ForMember(model => model.EditTime, opt => { opt.PreCondition(order => order.Id != 0); opt.MapFrom(order => DateTime.Now); })
+            CreateMap<CommentCreateOrder, Comment>()
+                .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
+                .AfterMap<SetUserId>();
+
+            CreateMap<CommentUpdateOrder, Comment>()
+                .ForMember(model => model.EditTime, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>();
 
             // CommentVote

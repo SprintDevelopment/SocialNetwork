@@ -35,7 +35,7 @@ namespace SocialNetwork.Models
         public long ReachedDate { get; set; }
     }
 
-    public class PostWithAnalysisCuOrder : PostCuOrder
+    public class PostWithAnalysisCreateOrder : PostCreateOrder
     {
         [BindProperty(Name = "a")]
         public string Time { get; set; }

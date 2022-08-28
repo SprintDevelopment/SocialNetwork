@@ -1,4 +1,6 @@
-﻿namespace SocialNetwork.Assets.Extensions
+﻿using System;
+
+namespace SocialNetwork.Assets.Extensions
 {
     public static class StringExtension
     {
@@ -6,5 +8,6 @@
         {
             return string.IsNullOrWhiteSpace(stringToCheck);
         }
+        public static bool ContainsInsensitive(this string str, string value) => str?.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }
