@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System;
 using SocialNetwork.Assets.Values.Constants;
+using SocialNetwork.Data.Repositories;
+using Serilog;
 
 namespace SocialNetwork.Assets
 {
@@ -23,6 +25,21 @@ namespace SocialNetwork.Assets
         }
     }
 
+    public class ReadAuthorData : IMappingAction<HasAuthor, ShouldReadAuthorData>
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public ReadAuthorData(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public void Process(HasAuthor source, ShouldReadAuthorData destination, ResolutionContext context)
+        {
+            source.Author ??= _unitOfWork.Users.Find(u => u.Id == source.UserId).FirstOrDefault();
+        }
+    }
+
     public class SetImageUrl : IMappingAction<Post, SearchPostDto>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -34,7 +51,7 @@ namespace SocialNetwork.Assets
 
         public void Process(Post source, SearchPostDto destination, ResolutionContext context)
         {
-            destination.Image = source.Image.IsNullOrWhitespace() ? "" :  $"{UrlConstants.SERVER_URL}/post-images/{source.Image}";
+            destination.Image = source.Image.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/post-images/{source.Image}";
         }
     }
 
@@ -83,6 +100,7 @@ namespace SocialNetwork.Assets
 
             // Post
             CreateMap<Post, SearchPostDto>()
+                .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
@@ -92,12 +110,14 @@ namespace SocialNetwork.Assets
                 .AfterMap<SetImageUrl>();
 
             CreateMap<Post, SinglePostDto>()
+                .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
                 .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
-                .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0));
+                .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0))
+                .AfterMap<SetImageUrl>();
 
             CreateMap<PostCreateOrder, Post>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
@@ -107,9 +127,10 @@ namespace SocialNetwork.Assets
             CreateMap<PostUpdateOrder, Post>()
                 .ForMember(model => model.EditTime, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>();
-            
+
             // Analysis
             CreateMap<Post, SearchPostWithAnalysisDto>()
+                .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
@@ -129,6 +150,7 @@ namespace SocialNetwork.Assets
                 .AfterMap<SetImageUrl>();
 
             CreateMap<Post, SinglePostWithAnalysisDto>()
+                .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
@@ -158,6 +180,7 @@ namespace SocialNetwork.Assets
 
             // Comment
             CreateMap<Comment, SearchCommentDto>()
+                .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
@@ -165,6 +188,9 @@ namespace SocialNetwork.Assets
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.CommentVotes.Any() ? (model.CommentVotes.First().IsDown ? -1 : 1) : 0));
 
             CreateMap<Comment, SingleCommentDto>()
+                .BeforeMap<ReadAuthorData>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
                 .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.CommentVotes.Any() ? (model.CommentVotes.First().IsDown ? -1 : 1) : 0));

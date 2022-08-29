@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Xml.Linq;
 
 namespace SocialNetwork.Models
 {
@@ -27,6 +29,7 @@ namespace SocialNetwork.Models
         public string Text { get; set; }
 
         [Required]
+        [BindProperty(Name = "reply_to")] 
         public int ReportedCommentId { get; set; }
     }
 }

@@ -107,7 +107,7 @@ namespace SocialNetwork.Controllers
                                 }),
                                 Encoding.UTF8,
                                 Application.Json);
-                        else
+                        else if(comment.ReplyTo is not null)
                         {
                             var previousComment = _unitOfWork.Comments.Find(c => c.Id == comment.ReplyTo.Value).FirstOrDefault();
 
@@ -127,12 +127,15 @@ namespace SocialNetwork.Controllers
                                     Application.Json);
                         }
 
-                        var httpClient = _httpClientFactory.CreateClient(NamedClientsConstants.NOTIFICATION_CLIENT);
+                        if (notification != null)
+                        {
+                            var httpClient = _httpClientFactory.CreateClient(NamedClientsConstants.NOTIFICATION_CLIENT);
 
-                        using var httpResponseMessage =
-                            await httpClient.PostAsync(comment.ReplyTo is null ? "comment" : "reply", notification);
+                            using var httpResponseMessage =
+                                await httpClient.PostAsync(comment.ReplyTo is null ? "comment" : "reply", notification);
 
-                        httpResponseMessage.EnsureSuccessStatusCode();
+                            httpResponseMessage.EnsureSuccessStatusCode();
+                        }
                     }
 
                     return Ok(_mapper.Map<SingleCommentDto>(comment));

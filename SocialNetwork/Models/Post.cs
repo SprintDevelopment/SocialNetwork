@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialNetwork.Models
 {
-    public class Post : HasUserId
+    public class Post : HasAuthor
     {
         [Key]
         public int Id { get; set; }
@@ -19,9 +19,6 @@ namespace SocialNetwork.Models
 
         [Required]
         public bool Reported { get; set; }
-
-        [ForeignKey(nameof(UserId))]
-        public User Author { get; set; }
 
         [Required(AllowEmptyStrings = true)]
         public string Image { get; set; } = "";
@@ -84,7 +81,7 @@ namespace SocialNetwork.Models
         public string Text { get; set; }
     }
 
-    public class SearchPostDto
+    public class SearchPostDto : ShouldReadAuthorData
     {
         public int Id { get; set; }
 
@@ -112,11 +109,6 @@ namespace SocialNetwork.Models
         public IEnumerable<string> Tags { get; set; }
 
         public string Symbol { get; set; }
-
-        public string Username { get; set; }
-
-        [JsonProperty("user_verified")]
-        public string UserVerified { get; set; }
 
         [JsonProperty("my_vote")]
         public int MyVote { get; set; }

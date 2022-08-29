@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialNetwork.Models
 {
-    public class Comment : HasUserId
+    public class Comment : HasAuthor
     {
         [Key]
         public int Id { get; set; }
@@ -21,9 +21,6 @@ namespace SocialNetwork.Models
 
         [Required]
         public bool Reported { get; set; }
-
-        [ForeignKey(nameof(UserId))]
-        public User Author { get; set; }
 
         [Required]
         public int PostId { get; set; }
@@ -78,7 +75,7 @@ namespace SocialNetwork.Models
         public string Text { get; set; }
     }
 
-    public class SearchCommentDto
+    public class SearchCommentDto : ShouldReadAuthorData
     {
         public int Id { get; set; }
 
@@ -108,11 +105,6 @@ namespace SocialNetwork.Models
         public int Dislikes { get; set; }
 
         public int Replies { get; set; }
-
-        public string Username { get; set; }
-
-        [JsonProperty("user_verified")]
-        public string UserVerified { get; set; }
 
         [JsonProperty("my_vote")]
         public int MyVote { get; set; }

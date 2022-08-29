@@ -47,6 +47,9 @@ namespace SocialNetwork
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IFileService, FileService>();
             services.AddAutoMapper(typeof(Startup));
+
+            services.AddCors();
+
             services.AddControllers(options => options.ReturnHttpNotAcceptable = true).AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             
             services.AddHttpClient(NamedClientsConstants.NOTIFICATION_CLIENT, httpClient =>
@@ -99,6 +102,11 @@ namespace SocialNetwork
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             app.UseAuthentication(); 
             app.UseAuthorization();
