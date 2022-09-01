@@ -48,7 +48,7 @@ namespace SocialNetwork.Controllers
         public IActionResult Get(string user, string tags, int offset, int limit)
         {
             IQueryable<Post> query = _unitOfWork.Posts
-                                    .Find()
+                                    .Find(p => !p.Reported)
                                     .Include(p => p.Author)
                                     .Include(p => p.PostTags)
                                     .Include(p => p.Analysis);
@@ -71,7 +71,7 @@ namespace SocialNetwork.Controllers
         public IActionResult Latests(int offset, int limit)
         {
             IQueryable<Post> query = _unitOfWork.Posts
-                                    .Find()
+                                    .Find(p => !p.Reported)
                                     .Include(p => p.Author)
                                     .Include(p => p.PostTags)
                                     .Include(p => p.Analysis);

@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SocialNetwork.Assets.Dtos;
+using SocialNetwork.Assets.Extensions;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using System.Linq;
@@ -22,6 +25,20 @@ namespace SocialNetwork.Controllers
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+        }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            IQueryable<PostReport> query = _unitOfWork.PostReports
+                                    .Find()
+                                    .Include(pr => pr.Author)
+                                    .Include(pr => pr.ReportedPost).ThenInclude(p => p.PostTags);
+
+            return Ok(query.OrderByDescending(pr => pr.CreateTime)
+                        .Select(pr => _mapper.Map<SearchPostReportDto>(pr))
+                        .AsEnumerable()
+                        .Paginate(HttpContext.Request.GetDisplayUrl()));
         }
 
         [HttpPost]

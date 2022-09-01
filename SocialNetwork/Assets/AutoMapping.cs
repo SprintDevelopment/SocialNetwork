@@ -119,6 +119,12 @@ namespace SocialNetwork.Assets
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.PostVotes.Any() ? (model.PostVotes.First().IsDown ? -1 : 1) : 0))
                 .AfterMap<SetImageUrl>();
 
+            CreateMap<Post, SimplePostDto>()
+                .BeforeMap<ReadAuthorData>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
+                .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)));
+
             CreateMap<PostCreateOrder, Post>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
                 .ForMember(model => model.PostTags, opt => opt.MapFrom(order => order.Tags.Select(t => new PostTag { TagID = t })))
@@ -177,6 +183,12 @@ namespace SocialNetwork.Assets
             CreateMap<PostReportCuOrder, PostReport>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>(); ;
+            
+            CreateMap<PostReport, SearchPostReportDto>()
+                .BeforeMap<ReadAuthorData>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
+                .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()));
 
             // Comment
             CreateMap<Comment, SearchCommentDto>()
@@ -195,6 +207,11 @@ namespace SocialNetwork.Assets
                 .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
                 .ForMember(dto => dto.MyVote, opt => opt.MapFrom(model => model.CommentVotes.Any() ? (model.CommentVotes.First().IsDown ? -1 : 1) : 0));
 
+            CreateMap<Comment, SimpleCommentDto>()
+                .BeforeMap<ReadAuthorData>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); });
+
             CreateMap<CommentCreateOrder, Comment>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>();
@@ -212,6 +229,12 @@ namespace SocialNetwork.Assets
             CreateMap<CommentReportCuOrder, CommentReport>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
                 .AfterMap<SetUserId>(); ;
+
+            CreateMap<CommentReport, SearchCommentReportDto>()
+                .BeforeMap<ReadAuthorData>()
+                .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
+                .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()));
         }
     }
 }

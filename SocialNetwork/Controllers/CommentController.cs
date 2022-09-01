@@ -44,7 +44,7 @@ namespace SocialNetwork.Controllers
         public IActionResult Get(int post, int offset, int limit)
         {
             IQueryable<Comment> query = _unitOfWork.Comments
-                    .Find()
+                    .Find(c => !c.Reported)
                     .Include(c => c.Author);
 
             if (User.Identity.IsAuthenticated)

@@ -75,16 +75,29 @@ namespace SocialNetwork.Models
         public string Text { get; set; }
     }
 
-    public class SearchCommentDto : ShouldReadAuthorData
+    public class SimpleCommentDto : ShouldReadAuthorData
     {
         public int Id { get; set; }
-
-        [JsonProperty("time")]
-        public string CreateTime { get; set; }
 
         public string Text { get; set; }
 
         public bool Reported { get; set; }
+
+        public string Description { get; set; }
+
+        [JsonProperty("user")]
+        public string UserId { get; set; }
+
+        new public string Username { get; set; }
+
+        [JsonProperty("user_verified")]
+        new public bool UserVerified { get; set; }
+    }
+
+    public class SearchCommentDto : SimpleCommentDto
+    {
+        [JsonProperty("time")]
+        public string CreateTime { get; set; }
 
         [JsonProperty("post")]
         public int PostId { get; set; }
@@ -92,13 +105,8 @@ namespace SocialNetwork.Models
         [JsonProperty("reply_to")]
         public int? ReplyTo { get; set; }
 
-        [JsonProperty("user")]
-        public string UserId { get; set; }
-
         [JsonProperty("edited_at")]
         public string EditTime { get; set; }
-
-        public string Description { get; set; }
 
         public int Likes { get; set; }
 

@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace SocialNetwork.Models
 {
@@ -29,6 +31,7 @@ namespace SocialNetwork.Models
         [Required]
         public string Text { get; set; }
 
+        [BindProperty(Name = "reported_user")]
         [Required]
         public string ReportedUserId { get; set; }
     }

@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml.Linq;
 
 namespace SocialNetwork.Models
 {
-    public class CommentReport : HasUserId
+    public class CommentReport : HasAuthor
     {
         [Key]
         public long Id { get; set; }
@@ -19,6 +21,9 @@ namespace SocialNetwork.Models
         [Required]
         public int ReportedCommentId { get; set; }
 
+        [ForeignKey(nameof(ReportedCommentId))]
+        public Comment ReportedComment { get; set; }
+
         [Required]
         public bool Checked { get; set; }
     }
@@ -29,7 +34,21 @@ namespace SocialNetwork.Models
         public string Text { get; set; }
 
         [Required]
-        [BindProperty(Name = "reply_to")] 
+        [BindProperty(Name = "reported_comment")] 
         public int ReportedCommentId { get; set; }
+    }
+
+    public class SearchCommentReportDto : ShouldReadAuthorData
+    {
+        [JsonProperty("time")]
+        public DateTime CreateTime { get; set; }
+
+        public string Text { get; set; }
+
+        [JsonProperty("reporter")]
+        new public string Username { get; set; }
+
+        [JsonProperty("comment")]
+        public SimpleCommentDto ReportedComment { get; set; }
     }
 }

@@ -33,9 +33,10 @@ namespace SocialNetwork.Models
 
     public class ShouldReadAuthorData 
     {
+        [JsonIgnore]
         public string Username { get; set; }
 
-        [JsonProperty("user_verified")]
+        [JsonIgnore]
         public bool UserVerified { get; set; }
     }
 }

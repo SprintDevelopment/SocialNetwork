@@ -80,8 +80,7 @@ namespace SocialNetwork.Models
         [Required]
         public string Text { get; set; }
     }
-
-    public class SearchPostDto : ShouldReadAuthorData
+    public class SimplePostDto : ShouldReadAuthorData 
     {
         public int Id { get; set; }
 
@@ -90,6 +89,16 @@ namespace SocialNetwork.Models
         [JsonProperty("user")]
         public string UserId { get; set; }
 
+        new public string Username { get; set; }
+
+        [JsonProperty("user_verified")]
+        new public bool UserVerified { get; set; }
+
+        public IEnumerable<string> Tags { get; set; }
+    }
+
+    public class SearchPostDto : ShouldReadAuthorData
+    {
         public string Image { get; set; }
 
         public bool Reported { get; set; }
