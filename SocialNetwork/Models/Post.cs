@@ -97,7 +97,7 @@ namespace SocialNetwork.Models
         public IEnumerable<string> Tags { get; set; }
     }
 
-    public class SearchPostDto : ShouldReadAuthorData
+    public class SearchPostDto : SimplePostDto
     {
         public string Image { get; set; }
 
