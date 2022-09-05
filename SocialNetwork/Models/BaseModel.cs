@@ -37,6 +37,9 @@ namespace SocialNetwork.Models
         public string Username { get; set; }
 
         [JsonIgnore]
+        public string UserAvatar { get; set; }
+
+        [JsonIgnore]
         public bool UserVerified { get; set; }
     }
 }

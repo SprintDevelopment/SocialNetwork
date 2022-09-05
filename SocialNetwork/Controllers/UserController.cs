@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Assets.Extensions;
@@ -10,6 +11,7 @@ using SocialNetwork.Models;
 using SocialNetwork.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,12 +25,14 @@ namespace SocialNetwork.Controllers
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileService _fileService;
 
-        public UserController(IMapper mapper, IUserService userService, IUnitOfWork unitOfWork)
+        public UserController(IMapper mapper, IUserService userService, IUnitOfWork unitOfWork, IFileService fileService)
         {
             _mapper = mapper;
             _userService = userService;
             _unitOfWork = unitOfWork;
+            _fileService = fileService;
         }
 
         [AllowAnonymous]
@@ -79,9 +83,16 @@ namespace SocialNetwork.Controllers
                 .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 
+        [HttpGet("Avatar/{fileName}")]
+        public IActionResult GetImage(string fileName)
+        {
+            var image = _fileService.DownloadAsync(Path.Combine("post-images", fileName));
+            return File(image, "image/jpeg");
+        }
+
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Create([FromForm] UserCreateOrder userCuOrder)
+        public async Task<IActionResult> Create([FromForm] UserCreateOrder userCuOrder)
         {
             if (ModelState.IsValid)
             {
@@ -92,6 +103,10 @@ namespace SocialNetwork.Controllers
 
                 if (_unitOfWork.Users.Find(u => u.Username == user.Username).Any())
                     return BadRequest(new UserError { Username = new string[] { "user with this username already exists." } });
+
+                var files = HttpContext.Request.Form.Files;
+                if (files.Count > 0)
+                    user.Avatar = await _fileService.UploadAsync(files[0], "user-avatars", "");
 
                 _userService.TokenizeUser(user);
                 _unitOfWork.Users.Add(user, true);
@@ -109,6 +124,9 @@ namespace SocialNetwork.Controllers
             {
                 var user = _unitOfWork.Users.Find(u => u.Id == id).FirstOrDefault();
 
+                if (user is null)
+                    return NotFound(new UserError { Username = new string[] { "user with this user id is not found!." } });
+
                 if (userUpdateUsernameOrder.Username == user.Username)
                     return BadRequest(new UserError { Username = new string[] { "username is the same as previous." } });
 
@@ -116,6 +134,28 @@ namespace SocialNetwork.Controllers
                     return BadRequest(new UserError { Username = new string[] { "user with this username already exists." } });
 
                 user.Username = userUpdateUsernameOrder.Username;
+                await _unitOfWork.CompleteAsync();
+
+                return Ok(user);
+            }
+
+            return BadRequest(new DetailedResponse { Detail = "Unknown" });
+        }
+
+        [HttpPatch("Avatar/{id}")]
+        public async Task<IActionResult> UpdateAvatar(string id, [FromForm] FakeFormForUploadAvatar fakeFormForUploadAvatar)
+        {
+                var files = HttpContext.Request.Form.Files;
+            if (!id.IsNullOrEmpty() && files.Count > 0)
+            {
+
+                var user = _unitOfWork.Users.Find(u => u.Id == id).FirstOrDefault();
+
+                if (user is null)
+                    return NotFound(new UserError { Username = new string[] { "user with this user id is not found!." } });
+
+                user.Avatar = await _fileService.UploadAsync(files[0], "user-avatars", user.Avatar);
+                
                 await _unitOfWork.CompleteAsync();
 
                 return Ok(user);

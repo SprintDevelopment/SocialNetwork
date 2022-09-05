@@ -42,16 +42,17 @@ namespace SocialNetwork.Assets
 
     public class SetImageUrl : IMappingAction<Post, SearchPostDto>
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public SetImageUrl(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        }
-
         public void Process(Post source, SearchPostDto destination, ResolutionContext context)
         {
             destination.Image = source.Image.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/post-images/{source.Image}";
+        }
+    }
+
+    public class SetAvatarUrl : IMappingAction<User, SimpleUserDto>
+    {
+        public void Process(User source, SimpleUserDto destination, ResolutionContext context)
+        {
+            destination.Avatar = source.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{source.Avatar}";
         }
     }
 
@@ -63,7 +64,7 @@ namespace SocialNetwork.Assets
             CreateMap<User, SimpleUserDto>()
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
                 .ForMember(dto => dto.BlockedUntil, opt => opt.MapFrom(model => model.BlockedUntil.HasValue ? model.BlockedUntil.Value.ToPersianDateTime() : ""))
-;
+                .AfterMap<SetAvatarUrl>();
 
             CreateMap<UserCreateOrder, User>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now));
@@ -72,7 +73,7 @@ namespace SocialNetwork.Assets
             // UserReport
             CreateMap<UserReportCuOrder, UserReport>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
-                .AfterMap<SetUserId>(); ;
+                .AfterMap<SetUserId>();
 
             // Block
             CreateMap<Block, BlockedDto>()
@@ -102,6 +103,7 @@ namespace SocialNetwork.Assets
             CreateMap<Post, SearchPostDto>()
                 .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserAvatar, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{model.Author.Avatar}"); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
@@ -112,6 +114,7 @@ namespace SocialNetwork.Assets
             CreateMap<Post, SinglePostDto>()
                 .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserAvatar, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{model.Author.Avatar}"); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
@@ -122,6 +125,7 @@ namespace SocialNetwork.Assets
             CreateMap<Post, SimplePostDto>()
                 .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserAvatar, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{model.Author.Avatar}"); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)));
 
@@ -138,6 +142,7 @@ namespace SocialNetwork.Assets
             CreateMap<Post, SearchPostWithAnalysisDto>()
                 .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserAvatar, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{model.Author.Avatar}"); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
@@ -158,6 +163,7 @@ namespace SocialNetwork.Assets
             CreateMap<Post, SinglePostWithAnalysisDto>()
                 .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserAvatar, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{model.Author.Avatar}"); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.Tags, opt => opt.MapFrom(model => model.PostTags.Select(t => t.TagID)))
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
@@ -182,8 +188,8 @@ namespace SocialNetwork.Assets
             // PostReport
             CreateMap<PostReportCuOrder, PostReport>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
-                .AfterMap<SetUserId>(); ;
-            
+                .AfterMap<SetUserId>();
+
             CreateMap<PostReport, SearchPostReportDto>()
                 .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
@@ -194,6 +200,7 @@ namespace SocialNetwork.Assets
             CreateMap<Comment, SearchCommentDto>()
                 .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserAvatar, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{model.Author.Avatar}"); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
                 .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
@@ -202,6 +209,7 @@ namespace SocialNetwork.Assets
             CreateMap<Comment, SingleCommentDto>()
                 .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserAvatar, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{model.Author.Avatar}"); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); })
                 .ForMember(dto => dto.CreateTime, opt => opt.MapFrom(model => model.CreateTime.ToPersianDateTime()))
                 .ForMember(dto => dto.EditTime, opt => opt.MapFrom(model => model.EditTime.HasValue ? model.EditTime.Value.ToPersianDateTime() : ""))
@@ -210,6 +218,7 @@ namespace SocialNetwork.Assets
             CreateMap<Comment, SimpleCommentDto>()
                 .BeforeMap<ReadAuthorData>()
                 .ForMember(dto => dto.Username, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Username); })
+                .ForMember(dto => dto.UserAvatar, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{model.Author.Avatar}"); })
                 .ForMember(dto => dto.UserVerified, opt => { opt.PreCondition(model => model.Author is not null); opt.MapFrom(model => model.Author.Verified); });
 
             CreateMap<CommentCreateOrder, Comment>()
@@ -228,7 +237,7 @@ namespace SocialNetwork.Assets
             // CommentReport
             CreateMap<CommentReportCuOrder, CommentReport>()
                 .ForMember(model => model.CreateTime, opt => opt.MapFrom(order => DateTime.Now))
-                .AfterMap<SetUserId>(); ;
+                .AfterMap<SetUserId>();
 
             CreateMap<CommentReport, SearchCommentReportDto>()
                 .BeforeMap<ReadAuthorData>()

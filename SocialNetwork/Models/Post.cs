@@ -91,6 +91,9 @@ namespace SocialNetwork.Models
 
         new public string Username { get; set; }
 
+        [JsonProperty("user_avatar")]
+        new public string UserAvatar { get; set; }
+
         [JsonProperty("user_verified")]
         new public bool UserVerified { get; set; }
 

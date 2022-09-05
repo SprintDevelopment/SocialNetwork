@@ -13,6 +13,9 @@ namespace SocialNetwork.Models
         [Required]
         public string Username { get; set; }
 
+        [Required(AllowEmptyStrings = true)]
+        public string Avatar { get; set; } = "";
+
         [Required]
         public DateTime CreateTime { get; set; }
 
@@ -51,6 +54,12 @@ namespace SocialNetwork.Models
         public string Username { get; set; }
     }
 
+    public class FakeFormForUploadAvatar
+    {
+        [Required]
+        public string fakeField { get; set; }
+    }
+
     public class UserLoginOrder
     {
         [Required]
@@ -65,6 +74,8 @@ namespace SocialNetwork.Models
         public string Id { get; set; }
 
         public string Username { get; set; }
+
+        public string Avatar { get; set; }
 
         [JsonProperty("created_at")]
         public string CreateTime { get; set; }
