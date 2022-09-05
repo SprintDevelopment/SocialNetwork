@@ -54,7 +54,13 @@ namespace SocialNetwork.Controllers
                                     .Include(p => p.Analysis);
 
             if (User.Identity.IsAuthenticated)
-                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == User.FindFirst("userId").Value));
+            {
+                //var requestUserId = User.FindFirst("userId").Value;
+                //var blockedUserIds = _unitOfWork.Blocks.Find(b => b.UserId == requestUserId).Select(bu => bu.UserId);
+                //query = query.Where(p => !blockedUserIds.Any(bui => bui == p.UserId));
+
+                query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == requestUserId));
+            }
 
             query = user.IsNullOrWhitespace() ? query : query.Where(p => p.UserId == user); // user
             query = tags.IsNullOrWhitespace() ? query : query.Where(p => p.PostTags.Any(pt => pt.TagID == tags)); // tag
