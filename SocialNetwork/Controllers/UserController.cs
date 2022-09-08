@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Assets.Extensions;
+using SocialNetwork.Assets.Values.Constants;
 using SocialNetwork.Data.Repositories;
 using SocialNetwork.Models;
 using SocialNetwork.Services;
@@ -46,6 +48,10 @@ namespace SocialNetwork.Controllers
                 if (user != null)
                 {
                     _userService.TokenizeUser(user);
+
+                    if (user.Avatar.IsNullOrWhitespace())
+                        user.Avatar = $"{UrlConstants.SERVER_URL}/user-avatars/{user.Avatar}";
+
                     return Ok(user);
                 }
 
@@ -65,7 +71,11 @@ namespace SocialNetwork.Controllers
             var user = _unitOfWork.Users.Find(u => u.Id == id).FirstOrDefault();
 
             if (user is not null)
+            {
+                user.Avatar = user.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{user.Avatar}";
+
                 return Ok(user);
+            }
 
             return NotFound();
         }
@@ -136,6 +146,9 @@ namespace SocialNetwork.Controllers
                 user.Username = userUpdateUsernameOrder.Username;
                 await _unitOfWork.CompleteAsync();
 
+                if (user.Avatar.IsNullOrWhitespace())
+                    user.Avatar = $"{UrlConstants.SERVER_URL}/user-avatars/{user.Avatar}";
+
                 return Ok(user);
             }
 
@@ -145,7 +158,7 @@ namespace SocialNetwork.Controllers
         [HttpPatch("Avatar/{id}")]
         public async Task<IActionResult> UpdateAvatar(string id, [FromForm] FakeFormForUploadAvatar fakeFormForUploadAvatar)
         {
-                var files = HttpContext.Request.Form.Files;
+            var files = HttpContext.Request.Form.Files;
             if (!id.IsNullOrEmpty() && files.Count > 0)
             {
 
@@ -155,8 +168,11 @@ namespace SocialNetwork.Controllers
                     return NotFound(new UserError { Username = new string[] { "user with this user id is not found!." } });
 
                 user.Avatar = await _fileService.UploadAsync(files[0], "user-avatars", user.Avatar);
-                
+
                 await _unitOfWork.CompleteAsync();
+
+                if (user.Avatar.IsNullOrWhitespace())
+                    user.Avatar = $"{UrlConstants.SERVER_URL}/user-avatars/{user.Avatar}";
 
                 return Ok(user);
             }

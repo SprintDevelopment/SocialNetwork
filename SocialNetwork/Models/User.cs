@@ -13,6 +13,7 @@ namespace SocialNetwork.Models
         [Required]
         public string Username { get; set; }
 
+        [JsonProperty("user_avatar")]
         [Required(AllowEmptyStrings = true)]
         public string Avatar { get; set; } = "";
 
@@ -75,6 +76,7 @@ namespace SocialNetwork.Models
 
         public string Username { get; set; }
 
+        [JsonProperty("user_avatar")]
         public string Avatar { get; set; }
 
         [JsonProperty("created_at")]

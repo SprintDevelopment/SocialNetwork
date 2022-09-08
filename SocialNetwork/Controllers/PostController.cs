@@ -55,7 +55,7 @@ namespace SocialNetwork.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                //var requestUserId = User.FindFirst("userId").Value;
+                var requestUserId = User.FindFirst("userId").Value;
                 //var blockedUserIds = _unitOfWork.Blocks.Find(b => b.UserId == requestUserId).Select(bu => bu.UserId);
                 //query = query.Where(p => !blockedUserIds.Any(bui => bui == p.UserId));
 
