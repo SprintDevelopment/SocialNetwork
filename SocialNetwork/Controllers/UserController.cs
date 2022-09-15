@@ -146,8 +146,7 @@ namespace SocialNetwork.Controllers
                 user.Username = userUpdateUsernameOrder.Username;
                 await _unitOfWork.CompleteAsync();
 
-                if (user.Avatar.IsNullOrWhitespace())
-                    user.Avatar = $"{UrlConstants.SERVER_URL}/user-avatars/{user.Avatar}";
+                user.Avatar = user.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{user.Avatar}";
 
                 return Ok(user);
             }
@@ -171,8 +170,7 @@ namespace SocialNetwork.Controllers
 
                 await _unitOfWork.CompleteAsync();
 
-                if (user.Avatar.IsNullOrWhitespace())
-                    user.Avatar = $"{UrlConstants.SERVER_URL}/user-avatars/{user.Avatar}";
+                user.Avatar = user.Avatar.IsNullOrWhitespace() ? "" : $"{UrlConstants.SERVER_URL}/user-avatars/{user.Avatar}";
 
                 return Ok(user);
             }

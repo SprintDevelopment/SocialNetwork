@@ -71,6 +71,22 @@ namespace SocialNetwork.Controllers
                     var user = _unitOfWork.Users.Find(u => u.Id == User.FindFirst("userId").Value).FirstOrDefault();
                     var comment = _mapper.Map<Comment>(commentCreateOrder);
 
+                    #region BLOCKED USERS
+                    var commentId = commentCreateOrder.ReplyTo;
+                    var commentContributerIds = new List<string> { post.UserId };
+
+                    while (commentId is not null)
+                    {
+                        var previousCommentInfo = _unitOfWork.Comments.Find(c => c.Id == commentId).Select(c => new { c.UserId, c.ReplyTo }).FirstOrDefault();
+                        commentContributerIds.Add(previousCommentInfo.UserId);
+
+                        commentId = previousCommentInfo.ReplyTo;
+                    }
+
+                    if (_unitOfWork.Blocks.Find(b => b.BlockedId == comment.UserId && commentContributerIds.Any(c => c == b.UserId)).Any())
+                        return Ok(_mapper.Map<SingleCommentDto>(comment));
+                    #endregion
+
                     if (!user.Verified && !user.WhiteList)
                     {
                         var validateReulst = _unitOfWork.BlackListPatterns.ValidateMessage(commentCreateOrder.Text);
@@ -89,7 +105,6 @@ namespace SocialNetwork.Controllers
 
                     await _unitOfWork.CompleteAsync();
 
-
                     {
                         StringContent notification = null;
 
@@ -107,7 +122,7 @@ namespace SocialNetwork.Controllers
                                 }),
                                 Encoding.UTF8,
                                 Application.Json);
-                        else if(comment.ReplyTo is not null)
+                        else if (comment.ReplyTo is not null)
                         {
                             var previousComment = _unitOfWork.Comments.Find(c => c.Id == comment.ReplyTo.Value).FirstOrDefault();
 

@@ -82,6 +82,10 @@ namespace SocialNetwork.Assets
                 .ForMember(dto => dto.Time, opt => opt.MapFrom(model => model.Time.ToPersianDateTime()))
                 .ForMember(dto => dto.Verified, opt => { opt.PreCondition(model => model.BlockedUser is not null); opt.MapFrom(model => model.BlockedUser.Verified); });
 
+            CreateMap<BlockCuOrder, Block>()
+                .ForMember(model => model.Time, opt => opt.MapFrom(order => DateTime.Now))
+                .AfterMap<SetUserId>();
+
             // Relationship
             CreateMap<Relationship, FollowingDto>()
                 .ForMember(dto => dto.UserId, opt => opt.MapFrom(model => model.FollowingId))

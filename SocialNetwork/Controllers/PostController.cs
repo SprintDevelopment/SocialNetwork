@@ -56,8 +56,8 @@ namespace SocialNetwork.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var requestUserId = User.FindFirst("userId").Value;
-                //var blockedUserIds = _unitOfWork.Blocks.Find(b => b.UserId == requestUserId).Select(bu => bu.UserId);
-                //query = query.Where(p => !blockedUserIds.Any(bui => bui == p.UserId));
+                //var blockerUserIds = _unitOfWork.Blocks.Find(b => b.BlockedId == requestUserId).Select(bu => bu.UserId);
+                //query = query.Where(p => !blockerUserIds.Any(bui => bui == p.UserId));
 
                 query = query.Include(p => p.PostVotes.Where(pv => pv.UserId == requestUserId));
             }

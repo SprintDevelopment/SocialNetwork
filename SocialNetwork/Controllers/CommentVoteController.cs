@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Data.Repositories;
@@ -34,6 +35,11 @@ namespace SocialNetwork.Controllers
 
                 if (comment is not null)
                 {
+                    #region BLOCKED USERS
+                    if (_unitOfWork.Blocks.Find(b => b.UserId == comment.UserId && b.BlockedId == commentVote.UserId).Any())
+                        return Ok(commentVote);
+                    #endregion
+
                     _unitOfWork.CommentVotes.Add(commentVote);
 
                     _ = commentVote.IsDown ? comment.Dislikes++ : comment.Likes++;
@@ -61,6 +67,11 @@ namespace SocialNetwork.Controllers
                     var preVote = _unitOfWork.CommentVotes.Find(pv => pv.CommentId == CommentVoteCuOrder.CommentId && pv.UserId == User.FindFirst("userId").Value).FirstOrDefault();
                     if (preVote is not null)
                     {
+                        #region BLOCKED USERS
+                        if (_unitOfWork.Blocks.Find(b => b.UserId == comment.UserId && b.BlockedId == preVote.UserId).Any())
+                            return Ok(preVote);
+                        #endregion
+
                         _ = preVote.IsDown ? comment.Dislikes-- : comment.Likes--;
                         preVote.IsDown = CommentVoteCuOrder.IsDown;
 
@@ -90,6 +101,11 @@ namespace SocialNetwork.Controllers
                 var preVote = _unitOfWork.CommentVotes.Find(pv => pv.CommentId == commentVoteCuOrder.CommentId && pv.UserId == User.FindFirst("userId").Value).FirstOrDefault();
                 if (preVote is not null)
                 {
+                    #region BLOCKED USERS
+                    if (_unitOfWork.Blocks.Find(b => b.UserId == comment.UserId && b.BlockedId == preVote.UserId).Any())
+                        return Ok(preVote);
+                    #endregion
+
                     _ = preVote.IsDown ? comment.Dislikes-- : comment.Likes--;
 
                     _unitOfWork.CommentVotes.Remove(preVote);

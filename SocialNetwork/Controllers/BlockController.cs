@@ -36,7 +36,7 @@ namespace SocialNetwork.Controllers
                 if (id == User.FindFirst("userId").Value)
                     return StatusCode(406, new ResponseDto { Result = false, Error = "can not block yourself." });
 
-                var block = _mapper.Map<Block>(id);
+                var block = _mapper.Map<Block>(new BlockCuOrder { BlockedId = id });
                 var blockedUser = await _unitOfWork.Users.GetAsync(id);
 
                 if (blockedUser is not null)

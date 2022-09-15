@@ -38,6 +38,11 @@ namespace SocialNetwork.Controllers
 
                 if (post is not null)
                 {
+                    #region BLOCKED USERS
+                    if (_unitOfWork.Blocks.Find(b => b.UserId == post.UserId && b.BlockedId == postVote.UserId).Any())
+                        return Ok(postVote);
+                    #endregion
+
                     _unitOfWork.PostVotes.Add(postVote);
 
                     _ = postVote.IsDown ? post.Dislikes++ : post.Likes++;
@@ -67,6 +72,11 @@ namespace SocialNetwork.Controllers
                     var preVote = _unitOfWork.PostVotes.Find(pv => pv.PostId == postVoteCuOrder.PostId && pv.UserId == User.FindFirst("userId").Value).FirstOrDefault();
                     if (preVote is not null)
                     {
+                        #region BLOCKED USERS
+                        if (_unitOfWork.Blocks.Find(b => b.UserId == post.UserId && b.BlockedId == preVote.UserId).Any())
+                            return Ok(preVote);
+                        #endregion
+
                         _ = preVote.IsDown ? post.Dislikes-- : post.Likes--;
                         preVote.IsDown = postVoteCuOrder.IsDown;
                         _ = preVote.IsDown ? post.Dislikes++ : post.Likes++;
@@ -97,6 +107,11 @@ namespace SocialNetwork.Controllers
                 var preVote = _unitOfWork.PostVotes.Find(pv => pv.PostId == postVoteCuOrder.PostId && pv.UserId == User.FindFirst("userId").Value).FirstOrDefault();
                 if (preVote is not null)
                 {
+                    #region BLOCKED USERS
+                    if (_unitOfWork.Blocks.Find(b => b.UserId == post.UserId && b.BlockedId == preVote.UserId).Any())
+                        return Ok(preVote);
+                    #endregion
+
                     _ = preVote.IsDown ? post.Dislikes-- : post.Likes--;
 
                     _unitOfWork.PostVotes.Remove(preVote);
