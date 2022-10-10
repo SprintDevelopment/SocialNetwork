@@ -33,7 +33,8 @@ namespace SocialNetwork
                     .Enrich.FromLogContext())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseUrls("http://127.0.0.1:8081");
+                    //webBuilder.UseUrls("http://127.0.0.1:8081");
+                    webBuilder.UseUrls("http://0.0.0.0:8091");
                     webBuilder.UseStartup<Startup>();
                 });
     }
