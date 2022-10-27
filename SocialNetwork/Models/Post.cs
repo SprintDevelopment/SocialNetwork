@@ -9,49 +9,65 @@ namespace SocialNetwork.Models
     public class Post : HasAuthor
     {
         [Key]
+        [Column("id")]
         public int Id { get; set; }
         
         [Required]
+        [Column("time")]
         public DateTime CreateTime { get; set; }
 
         [Required]
+        [Column("text")]
         public string Text { get; set; }
 
         [Required]
+        [Column("reported")]
         public bool Reported { get; set; }
 
         [Required(AllowEmptyStrings = true)]
+        [Column("image")]
         public string Image { get; set; } = "";
 
+        [Column("edited_at")]
         public DateTime? EditTime { get; set; }
         
         [Required]
+        [Column("auto_report")]
         public bool AutoReport { get; set; }
 
         [Required(AllowEmptyStrings = true)]
+        [Column("description")]
         public string Description { get; set; } = "";
 
         [Required]
+        [Column("admin_whitelist")]
         public bool AdminWhitelist { get; set; }
 
         [Required]
+        [Column("score")]
         public float Score { get; set; }
 
         [Required]
+        [Column("score_time")]
         public float ScoreTime { get; set; }
 
         [Required]
+        [Column("symbol")]
         public string Symbol { get; set; }
 
+        [Column("auto_report_time")]
         public DateTime? AutoReportTime { get; set; }
         
         [Required]
+        [Column("comments")]
         public int Comments { get; set; }
 
         [Required]
+        [Column("likes")]
         public int Likes { get; set; }
 
         [Required]
+        [Column("dislikes")]
         public int Dislikes { get; set; }
         
         public virtual IEnumerable<PostTag> PostTags { get; set; }
@@ -59,12 +75,8 @@ namespace SocialNetwork.Models
         public virtual IEnumerable<PostVote> PostVotes { get; set; }
         
         [Required]
+        [Column("notification_sent")]
         public bool NotificationSent { get; set; }
-
-        public int? AnalysisId { get; set; }
-
-        [ForeignKey(nameof(AnalysisId))]
-        public Analysis Analysis { get; set; }
     }
 
     public class PostCreateOrder : ShouldPassUserId

@@ -9,15 +9,19 @@ namespace SocialNetwork.Models
     public class PostVote : HasUserId
     {
         [Key]
+        [Column("id")]
         public int Id { get; set; }
 
         [Required]
+        [Column("time")]
         public DateTime CreateTime { get; set; } = DateTime.Now;
 
         [Required]
+        [Column("is_down")]
         public bool IsDown { get; set; }
 
         [Required]
+        [Column("post_id")]
         public int PostId { get; set; }
 
         [JsonIgnore]

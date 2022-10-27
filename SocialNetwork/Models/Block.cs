@@ -10,12 +10,15 @@ namespace SocialNetwork.Models
     public class Block : HasUserId
     {
         [Key]
+        [Column("id")]
         public long Id { get; set; }
 
         [Required]
+        [Column("id")]
         public DateTime Time { get; set; }
 
         [Required]
+        [Column("id")]
         public string BlockedId { get; set; }
 
         [ForeignKey(nameof(BlockedId))]

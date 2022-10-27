@@ -11,15 +11,18 @@ namespace SocialNetwork.Models
     public class Relationship : HasUserId
     {
         [Key]
+        [Column("id")]
         public long Id { get; set; }
 
         [Required]
+        [Column("time")]
         public DateTime Time { get; set; }
 
         [ForeignKey(nameof(UserId))]
         public User FollowerUser { get; set; }
 
         [Required]
+        [Column("following_id")]
         public string FollowingId { get; set; }
 
         [ForeignKey(nameof(FollowingId))]

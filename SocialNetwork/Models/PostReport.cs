@@ -10,21 +10,26 @@ namespace SocialNetwork.Models
     public class PostReport : HasAuthor
     {
         [Key]
+        [Column("id")]
         public long Id { get; set; }
 
         [Required]
+        [Column("time")]
         public DateTime CreateTime { get; set; }
         
         [Required]
+        [Column("text")]
         public string Text { get; set; }
 
         [Required]
+        [Column("reported_post_id")]
         public int ReportedPostId { get; set; }
 
         [ForeignKey(nameof(ReportedPostId))]
         public Post ReportedPost { get; set; }
 
         [Required]
+        [Column("checked")]
         public bool Checked { get; set; }
     }
 

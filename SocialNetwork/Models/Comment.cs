@@ -11,46 +11,59 @@ namespace SocialNetwork.Models
     public class Comment : HasAuthor
     {
         [Key]
+        [Column("id")]
         public int Id { get; set; }
 
         [Required]
+        [Column("time")]
         public DateTime CreateTime { get; set; }
 
         [Required]
+        [Column("text")]
         public string Text { get; set; }
 
         [Required]
+        [Column("reported")]
         public bool Reported { get; set; }
 
         [Required]
+        [Column("post_id")]
         public int PostId { get; set; }
 
         [ForeignKey(nameof(PostId))]
         public Post Post { get; set; }
         
+        [Column("reply_to_id")]
         public int? ReplyTo { get; set; }
-        
+
+        [Column("edited_at")]
         public DateTime? EditTime { get; set; }
         
         [Required]
+        [Column("auto_report")]
         public bool AutoReport { get; set; }
 
         [Required(AllowEmptyStrings = true)]
+        [Column("description")]
         public string Description { get; set; } = "";
         
         [Required]
+        [Column("admin_whitelist")]
         public bool AdminWhitelist { get; set; }
         
         [Required]
+        [Column("likes")]
         public int Likes { get; set; }
         
         [Required]
+        [Column("dislikes")]
         public int Dislikes { get; set; }
         
         [Required]
         public int Replies { get; set; }
         
         [Required]
+        [Column("notification_sent")]
         public bool NotificationSent { get; set; }
 
         public virtual IEnumerable<CommentVote> CommentVotes { get; set; }

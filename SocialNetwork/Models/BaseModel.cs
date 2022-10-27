@@ -20,6 +20,7 @@ namespace SocialNetwork.Models
     public class HasUserId : BaseModel
     {
         [Required]
+        [Column("user_id")]
         public string UserId { get; set; }
     }
 
