@@ -37,7 +37,6 @@ namespace SocialNetwork.Controllers
 
             return Ok(query.OrderByDescending(pr => pr.CreateTime)
                         .Select(pr => _mapper.Map<SearchPostReportDto>(pr))
-                        .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl()));
         }
 

@@ -40,7 +40,7 @@ namespace SocialNetwork
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
-                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+                o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
             services.AddTransient<IUnitOfWork, UnitOfWork>();

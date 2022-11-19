@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Npgsql;
 using Serilog;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Assets.Extensions;
@@ -14,6 +15,7 @@ using SocialNetwork.Models;
 using SocialNetwork.Services;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -43,6 +45,60 @@ namespace SocialNetwork.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("test")]
+        public async Task<IActionResult> Get(string username)
+        {
+            var cs = "Host=localhost;Username=bourse;Password=bourse_pass;Database=bourse_sn";
+
+            using var con = new NpgsqlConnection(cs);
+            con.Open();
+
+            var sql = "SELECT * From social_network_user";
+
+            using var cmd = new NpgsqlCommand(sql, con);
+            using NpgsqlDataReader rdr = cmd.ExecuteReader();
+            int i = 0, rowCount = 0;
+            var allRows = new List<User>();
+            while (rdr.Read())
+            {
+                i++;
+                rowCount++;
+                allRows.Add(new User()
+                {
+                    Id = rdr.GetString(0),
+                    Username = rdr.GetString(1),
+                    Reported = rdr.GetBoolean(2),
+                    CreateTime = rdr.GetDateTime(3),
+                    BlockedUntil = rdr.IsDBNull(4) ? null : rdr.GetDateTime(4),
+                    Verified = rdr.GetBoolean(5),
+                    ReportCandidate = rdr.GetBoolean(6),
+                    WhiteList = rdr.GetBoolean(7),
+                    AdminReputation = 1,
+                    Avatar = "",
+                    Token = ""
+                });
+
+                if (i == 1000)
+                {
+                    _unitOfWork.Users.AddRange(allRows);
+                    await _unitOfWork.CompleteAsync();
+                    allRows.Clear();
+                    i = 0;
+                }
+            }
+
+            if (i > 0)
+            {
+                _unitOfWork.Users.AddRange(allRows);
+                await _unitOfWork.CompleteAsync();
+
+                i = 0;
+            }
+
+            return Ok($"{rowCount} rows inserted in Users table");
+        }
+
+        [AllowAnonymous]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet]
         public IActionResult Get(string user, string tags, int offset, int limit)
@@ -67,7 +123,6 @@ namespace SocialNetwork.Controllers
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
                         .Select(p => _mapper.Map<SearchPostWithAnalysisDto>(p))
-                        .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 
@@ -87,7 +142,6 @@ namespace SocialNetwork.Controllers
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
                         .Select(p => _mapper.Map<SearchPostWithAnalysisDto>(p))
-                        .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 
@@ -103,7 +157,6 @@ namespace SocialNetwork.Controllers
 
             return Ok(query.OrderByDescending(p => p.CreateTime)
                         .Select(p => _mapper.Map<SearchPostWithAnalysisDto>(p))
-                        .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 

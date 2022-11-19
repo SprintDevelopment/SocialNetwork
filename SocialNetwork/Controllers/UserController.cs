@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using Serilog;
 using SocialNetwork.Assets.Dtos;
 using SocialNetwork.Assets.Extensions;
@@ -87,10 +88,36 @@ namespace SocialNetwork.Controllers
             if (username.IsNullOrWhitespace() || username.Length < 3)
                 return BadRequest(new ResponseDto { Result = false, Error = "not enough input data" });
 
-            return Ok(_unitOfWork.Users.Find(u => u.Username.ToLower().Contains(username.ToLower()))
-                .Select(u => _mapper.Map<SimpleUserDto>(u))
-                .AsEnumerable()
-                .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
+
+            //return Ok(_mapper.ProjectTo<SimpleUserDto>(_unitOfWork.Users.Find(u => u.Username.ToLower().Contains(username.ToLower())))
+            //    .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
+
+            //var cs = "Host=localhost;Username=postgres;Password=root;Database=socialNetworkForTest";
+            var cs = "Host=localhost;Username=postgres;Password=postgresql;Database=socialNetwork7";
+            using var con = new NpgsqlConnection(cs);
+            con.Open();
+
+            var sql = $"SELECT \"Id\", \"Username\", \"CreateTime\", \"Verified\" From \"Users\" WHERE \"Username\" Like '%{username}%' limit 20";
+
+            using var cmd = new NpgsqlCommand(sql, con);
+            using NpgsqlDataReader rdr = cmd.ExecuteReader();
+            int i = 0, rowCount = 0;
+            var allRows = new List<SimpleUserDto>();
+            while (rdr.Read())
+            {
+                i++;
+                rowCount++;
+                allRows.Add(new SimpleUserDto()
+                {
+                    Id = rdr.GetString(0),
+                    Username = rdr.GetString(1),
+                    CreateTime = rdr.GetDateTime(2).ToString(),
+                    Verified = rdr.GetBoolean(3),
+                });
+
+            }
+            con.Close();
+            return Ok(allRows);
         }
 
         [HttpGet("Avatar/{fileName}")]

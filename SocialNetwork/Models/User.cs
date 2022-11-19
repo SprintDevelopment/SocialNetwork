@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
 
 
 namespace SocialNetwork.Models
 {
+    [Index(nameof(Username))]
     public class User : BaseModel
     {
         [Key]

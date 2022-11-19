@@ -39,7 +39,6 @@ namespace SocialNetwork.Controllers
 
             return Ok(query.OrderByDescending(cr => cr.CreateTime)
                         .Select(cr => _mapper.Map<SearchCommentReportDto>(cr))
-                        .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl()));
         }
 

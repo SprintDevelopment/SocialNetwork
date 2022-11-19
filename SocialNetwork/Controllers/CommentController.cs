@@ -54,7 +54,6 @@ namespace SocialNetwork.Controllers
 
             return Ok(query.OrderBy(c => c.CreateTime)
                         .Select(c => _mapper.Map<SearchCommentDto>(c))
-                        .AsEnumerable()
                         .Paginate(HttpContext.Request.GetDisplayUrl(), offset, limit));
         }
 
